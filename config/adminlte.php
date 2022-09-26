@@ -254,7 +254,7 @@ return [
 
     'use_route_url' => false,
     'dashboard_url' => 'admin',
-    'logout_url' => 'logout',
+    'logout_url' => 'admin/logout',
     'login_url' => 'admin/login',
     'register_url' => false,
     'password_reset_url' => false,

@@ -26,7 +26,7 @@ trait HasPermissionTrait
     public function callAction($method, $parameters)
     {
         $access = property_exists($this, 'access') ? $this->access : $this->defaultAccess;
-        $module = $this->module;
+        $module = $this->module ?? 'dashboard';
 
         if (isset($access[$method])) {
 
