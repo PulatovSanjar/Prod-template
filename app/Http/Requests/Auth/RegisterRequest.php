@@ -2,10 +2,10 @@
 
 namespace App\Http\Requests\Auth;
 
-use App\Rules\Auth\HasVerifyEmailRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Password;
 
-class LoginRequest extends FormRequest
+class RegisterRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -20,13 +20,14 @@ class LoginRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array
+     * @return array<string, mixed>
      */
     public function rules()
     {
         return [
-            'email'     => ['required', 'exists:users,email', new HasVerifyEmailRule],
-            'password'  => 'required|min:4|max:191',
+            'name'          => 'required|string|min:2|max:191',
+            'email'         => 'required|email|max:191',
+            'password'      => ['required', new Password(6), 'confirmed'],
         ];
     }
 }

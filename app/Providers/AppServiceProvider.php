@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Services\RegisterService;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -13,7 +14,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        $this->singleton();
     }
 
     /**
@@ -24,5 +25,13 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         //
+    }
+
+    /**
+     * @return void
+     */
+    private function singleton(): void
+    {
+        $this->app->singleton(RegisterService::class);
     }
 }

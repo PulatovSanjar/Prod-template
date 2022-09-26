@@ -140,6 +140,7 @@ return [
     'uploaded' => 'The :attribute failed to upload.',
     'url' => 'The :attribute must be a valid URL.',
     'uuid' => 'The :attribute must be a valid UUID.',
+    'email_unverified' => 'The email must be verified, please check your email',
 
     /*
     |--------------------------------------------------------------------------

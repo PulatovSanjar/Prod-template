@@ -4,7 +4,14 @@ namespace App\Contracts;
 
 interface DTOContract
 {
-    public static function transform(array $data);
+    /**
+     * @param array $data
+     * @return mixed
+     */
+    public static function transform(array $data): DTOContract;
 
+    /**
+     * @return array
+     */
     public function toArray(): array;
 }
