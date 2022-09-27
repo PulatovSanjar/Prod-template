@@ -28,8 +28,8 @@ class UpdateRoleRequest extends FormRequest
         return [
             'title'         => 'required|string|max:191|min:3',
             'key'           => 'required|string|unique:roles,key,' . $role . ',id',
-            'permissions'   => 'required|array|min:1',
-            'permissions.*' => 'required|exists:permissions,id'
+            'permissions'   => 'nullable|array',
+            'permissions.*' => 'nullable|exists:permissions,id'
         ];
     }
 }

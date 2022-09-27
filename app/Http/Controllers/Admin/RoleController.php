@@ -53,7 +53,7 @@ class RoleController extends Controller
         /** @var Role $role */
         $role = Role::query()->create($inputs);
 
-        $role->permissions()->sync($inputs['permissions']);
+        $role->permissions()->sync($inputs['permissions'] ?? []);
 
         $this->notify()->addCreated($this->module);
 
@@ -86,7 +86,7 @@ class RoleController extends Controller
 
         $role->update($inputs);
 
-        $role->permissions()->sync($inputs['permissions']);
+        $role->permissions()->sync($inputs['permissions'] ?? []);
 
         $this->notify()->addUpdated($this->module);
 
