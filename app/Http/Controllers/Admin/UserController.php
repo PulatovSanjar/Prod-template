@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Exceptions\ModuleNotFoundException;
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\AdminController;
 use App\Http\Requests\Admin\Users\CreateUserRequest;
 use App\Http\Requests\Admin\Users\UpdateUserRequest;
 use App\Models\Role;
@@ -14,7 +14,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Hash;
 
-class UserController extends Controller
+class UserController extends AdminController
 {
     protected string $module = 'users';
 

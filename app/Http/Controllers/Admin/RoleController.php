@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Exceptions\ModuleNotFoundException;
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\AdminController;
 use App\Http\Requests\Admin\Roles\CreateRoleRequest;
 use App\Http\Requests\Admin\Roles\UpdateRoleRequest;
 use App\Models\Permission;
@@ -13,7 +13,7 @@ use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 
-class RoleController extends Controller
+class RoleController extends AdminController
 {
     /**
      * @var string

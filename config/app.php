@@ -195,7 +195,8 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
         Flasher\Laravel\FlasherServiceProvider::class,
-        \App\Providers\PermissionServiceProvider::class
+        \App\Providers\PermissionServiceProvider::class,
+        \App\Providers\TranslatorServiceProvider::class
 
     ],
 

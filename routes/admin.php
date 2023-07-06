@@ -3,7 +3,9 @@
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\Admin\TranslatorController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\VariableController;
 use Illuminate\Support\Facades\Route;
 
 Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
@@ -15,6 +17,12 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
         Route::resource('roles', RoleController::class);
 
         Route::resource('users', UserController::class);
+
+        Route::resource('translators', TranslatorController::class)
+            ->only(['index', 'store']);
+
+        Route::resource('variables', VariableController::class)
+            ->only(['index', 'store']);
 
     });
 

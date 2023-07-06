@@ -4,6 +4,8 @@ return [
 
     'roles'                 => 'Roles',
     'settings'              => 'Settings',
-    'users'                 => 'Users'
+    'users'                 => 'Users',
+    'translations'          => 'Translations',
+    'variables'             => 'Variables'
 
 ];

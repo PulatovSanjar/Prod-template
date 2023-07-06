@@ -12,6 +12,9 @@
 <div class="card">
     <div class="card-header">
         {{ __('admin.modules.' . (empty($model) ? 'store' : 'update'), ['module' => $module]) }}
+        @if (config('app.env') == 'local')
+            @dump($errors)
+        @endif
     </div>
     <div class="card-body">
         <ul class="nav nav-tabs" role="tablist">

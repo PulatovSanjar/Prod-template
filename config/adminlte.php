@@ -319,6 +319,22 @@ return [
                     'key'         => 'roles',
                     'active'      => ['admin/roles/*'],
                 ],
+                [
+                    'text'        => 'translations',
+                    'url'         => 'admin/translators',
+                    'icon'        => 'fas fa-sort-alpha-up-alt',
+                    'can'         => 'translators_access',
+                    'key'         => 'translators',
+                    'active'      => ['admin/translators/*'],
+                ],
+                [
+                    'text'        => 'variables',
+                    'url'         => 'admin/variables',
+                    'icon'        => 'fas fa-cog',
+                    'can'         => 'variables_access',
+                    'key'         => 'variables',
+                    'active'      => ['admin/variables/*'],
+                ],
             ],
         ],
 

@@ -9,9 +9,11 @@
 @endphp
 
 <div class="row">
-    <label for="{{ $name }}">{{ $label }}</label>
+    @if ($label)
+        <label for="{{ $name }}">{{ $label }}</label>
+    @endif
 
-    <textarea class="form-control {{ $errors->has($error_field) ? 'is-invalid' : '' }}" name="{{ $name }}" rows="{{ $rows }}">{{ $value }}</textarea>
+    <textarea class="form-control {{ $ckeditor ? 'ckeditor' : '' }} {{ $errors->has($error_field) ? 'is-invalid' : '' }}" name="{{ $name }}" rows="{{ $rows }}">{{ $value ?? old($name) }}</textarea>
 
     {!! $errors->first($error_field, '<span class="error" style="color: red">:message</span>') !!}
 

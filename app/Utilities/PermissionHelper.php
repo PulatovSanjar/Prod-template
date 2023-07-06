@@ -2,6 +2,10 @@
 
 namespace App\Utilities;
 
+use App\Exceptions\RoleNotFound;
+use App\Models\Permission;
+use App\Models\Role;
+
 class PermissionHelper
 {
     /**
@@ -13,6 +17,11 @@ class PermissionHelper
         'edit',
         'delete'
     ];
+
+    /**
+     * @var string
+     */
+    protected static string $adminRole = 'admin';
 
     /**
      * @var string
@@ -32,5 +41,41 @@ class PermissionHelper
         }
 
         return $permissions;
+    }
+
+    /**
+     * @param string $title
+     * @return void
+     * @throws RoleNotFound
+     */
+    public static function apply(string $title): void
+    {
+        $permissions = self::make($title);
+
+        foreach ($permissions as $permission) {
+
+            /** @var Permission $permission */
+            $permission = Permission::query()->firstOrCreate(['title' => $permission]);
+            self::assignToAdmin($permission);
+        }
+    }
+
+    /**
+     * @param Permission $permission
+     * @return void
+     * @throws RoleNotFound
+     */
+    public static function assignToAdmin(Permission $permission): void
+    {
+        /** @var Role $role */
+        $role = Role::query()->where('key', self::$adminRole)->first();
+
+        if (!$role) {
+            throw new RoleNotFound('Admin role not found');
+        }
+
+        if (!$role->permissions()->find($permission)) {
+            $role->permissions()->attach($permission);
+        }
     }
 }
