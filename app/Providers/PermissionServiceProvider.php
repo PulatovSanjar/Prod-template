@@ -16,7 +16,7 @@ class PermissionServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        if (isDatabaseAvailable()) {
+        if (isDatabaseAvailable('permissions')) {
             $this->registerPermissions();
         }
     }

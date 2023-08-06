@@ -15,7 +15,7 @@ class TranslatorServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        if (isDatabaseAvailable()) {
+        if (isDatabaseAvailable('translators')) {
             $this->replaceTranslations();
         }
     }
