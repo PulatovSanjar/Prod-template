@@ -5,7 +5,8 @@ namespace App\Http\Controllers;
 use App\Exceptions\ModuleNotFoundException;
 use App\Http\Controllers\Traits\HasJsonResponseTrait;
 use App\Http\Controllers\Traits\HasNotificationTrait;
-use App\Http\Controllers\Traits\HasPermissionTrait;
+use App\Models\User;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -17,7 +18,7 @@ use Illuminate\Routing\Controller as BaseController;
 class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests,
-        HasJsonResponseTrait, HasNotificationTrait, HasPermissionTrait;
+        HasJsonResponseTrait, HasNotificationTrait;
 
     /**
      * @param string $view
@@ -35,5 +36,14 @@ class Controller extends BaseController
         return view($view, array_merge([
             'module' => $this->module
         ], $withData));
+    }
+
+    /**
+     * @param string $guard
+     * @return Authenticatable|User|null
+     */
+    protected function user(string $guard = 'api'): null|Authenticatable|User
+    {
+        return auth($guard)->user();
     }
 }

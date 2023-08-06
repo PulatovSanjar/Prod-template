@@ -18,6 +18,10 @@ class AdminController extends Controller
 {
     use HasNotificationTrait, HasPermissionTrait;
 
+    protected const ACTION_INDEX = 0;
+    protected const ACTION_CREATE = 1;
+    protected const ACTION_EDIT = 2;
+
     /**
      * @param string $view
      * @param array $withData
@@ -33,5 +37,29 @@ class AdminController extends Controller
         return view($view, array_merge([
             'module' => $this->module
         ], $withData));
+    }
+
+    /**
+     * @param int $action
+     * @return string
+     */
+    protected function getActionView(int $action): string
+    {
+        $views = [
+            'admin.views.' . $this->module . '.index',
+            'admin.views.' . $this->module . '.store',
+            'admin.views.' . $this->module . '.update',
+        ];
+
+        return $views[$action];
+    }
+
+    /**
+     * @return Factory|View|Application
+     * @throws ModuleNotFoundException
+     */
+    public function index(): Factory|View|Application
+    {
+        return $this->view($this->getActionView(self::ACTION_INDEX));
     }
 }
