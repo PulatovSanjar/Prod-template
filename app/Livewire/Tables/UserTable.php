@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Livewire\Tables;
+namespace App\Livewire\Tables;
 
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
