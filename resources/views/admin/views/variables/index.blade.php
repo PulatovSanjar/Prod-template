@@ -35,7 +35,6 @@
                         </tbody>
                     </table>
                 </div>
-                @include('admin.helpers.save_buttons')
             </form>
         </div>
     </div>
