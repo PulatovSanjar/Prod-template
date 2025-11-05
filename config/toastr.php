@@ -1,11 +1,12 @@
 <?php
+declare(strict_types=1);
 
 /*
  * This file is part of the yoeunes/toastr package.
  * (c) Younes KHOUBZA <younes.khoubza@gmail.com>
  */
 
-return array(
+return [
     /*
     |--------------------------------------------------------------------------
     | Toastr options
@@ -23,6 +24,6 @@ return array(
     | ],
     */
 
-    'options' => array(
-    ),
-);
+    'options' => [
+    ],
+];

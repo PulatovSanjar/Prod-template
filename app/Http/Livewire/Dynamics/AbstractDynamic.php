@@ -1,9 +1,10 @@
 <?php
+declare(strict_types=1);
 
 namespace App\Http\Livewire\Dynamics;
 
-use App\Contracts\DynamicTabContract;
 use Livewire\Component;
+use App\Contracts\DynamicTabContract;
 
 abstract class AbstractDynamic extends Component implements DynamicTabContract
 {
@@ -11,7 +12,7 @@ abstract class AbstractDynamic extends Component implements DynamicTabContract
      * @var array|false[]
      */
     public array $defaultRows = [
-        'submitted' => false
+        'submitted' => false,
     ];
 
     /**

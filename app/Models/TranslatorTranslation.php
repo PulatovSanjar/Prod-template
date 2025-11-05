@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace App\Models;
 
@@ -9,6 +10,6 @@ class TranslatorTranslation extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'value'
+        'value',
     ];
 }

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace App\Livewire\Tables;
 
@@ -25,17 +26,17 @@ class RoleTable extends BaseTable
     public function columns(): array
     {
         return [
-            Column::make(__('fields.id'), "id")
+            Column::make(__('fields.id'), 'id')
                 ->sortable()->searchable(),
 
-            Column::make(__('fields.title'), "title")
+            Column::make(__('fields.title'), 'title')
                 ->sortable()->searchable(),
 
-            Column::make(__('fields.key'), "key")
+            Column::make(__('fields.key'), 'key')
                 ->sortable()->searchable(),
 
             ButtonGroupColumn::make(__('admin.actions'))
-                ->buttons($this->getActionButtons())
+                ->buttons($this->getActionButtons()),
         ];
     }
 

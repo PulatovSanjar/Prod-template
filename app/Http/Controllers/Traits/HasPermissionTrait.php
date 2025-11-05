@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace App\Http\Controllers\Traits;
 
@@ -13,7 +14,7 @@ trait HasPermissionTrait
         'index'   => 'access',
         'create'  => 'create',
         'edit'    => 'edit',
-        'destroy' => 'delete'
+        'destroy' => 'delete',
     ];
 
     /**
@@ -33,7 +34,6 @@ trait HasPermissionTrait
             Gate::authorize($module . '_' . $access[$method]);
 
         }
-
 
         return $this->{$method}(...array_values($parameters));
     }

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace App\Models;
 
@@ -12,14 +13,14 @@ class Permission extends Model
      */
     protected $dates = [
         self::CREATED_AT,
-        self::UPDATED_AT
+        self::UPDATED_AT,
     ];
 
     /**
      * @var string[]
      */
     protected $fillable = [
-        'title'
+        'title',
     ];
 
     /**

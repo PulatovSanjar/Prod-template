@@ -1,10 +1,11 @@
 <?php
+declare(strict_types=1);
 
 namespace App\Utilities;
 
-use App\Exceptions\RoleNotFound;
-use App\Models\Permission;
 use App\Models\Role;
+use App\Models\Permission;
+use App\Exceptions\RoleNotFound;
 
 class PermissionHelper
 {
@@ -15,7 +16,7 @@ class PermissionHelper
         'access',
         'create',
         'edit',
-        'delete'
+        'delete',
     ];
 
     /**

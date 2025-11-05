@@ -1,15 +1,16 @@
 <?php
+declare(strict_types=1);
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\AdminController;
 use App\Models\Translator;
+use Illuminate\Http\Request;
 use App\Services\TranslatorService;
-use Illuminate\Contracts\Foundation\Application;
-use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
+use Illuminate\Contracts\View\Factory;
+use App\Http\Controllers\AdminController;
+use Illuminate\Contracts\Foundation\Application;
 
 class TranslatorController extends AdminController
 {
@@ -40,7 +41,7 @@ class TranslatorController extends AdminController
 
         return $this->view('admin.views.' . $this->module . '.index', [
             'languages'     => $languages,
-            'translations'  => $translations
+            'translations'  => $translations,
         ]);
     }
 

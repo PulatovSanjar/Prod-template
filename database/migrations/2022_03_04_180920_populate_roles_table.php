@@ -1,7 +1,8 @@
 <?php
+declare(strict_types=1);
 
-use App\Models\Permission;
 use App\Models\Role;
+use App\Models\Permission;
 use App\Utilities\PermissionHelper;
 use Illuminate\Database\Migrations\Migration;
 
@@ -29,8 +30,8 @@ class PopulateRolesTable extends Migration
                 'title' => 'Customer',
                 'key'   => 'customer',
 
-                'permissions' => []
-            ]
+                'permissions' => [],
+            ],
         ];
 
         foreach ($roles as $roleData) {
@@ -54,7 +55,7 @@ class PopulateRolesTable extends Migration
         Role::query()
             ->whereIn('key', [
                 'admin',
-                'customer'
+                'customer',
             ])->delete();
     }
 }

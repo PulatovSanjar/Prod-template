@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace App\Livewire\Tables;
 
@@ -26,20 +27,20 @@ class UserTable extends BaseTable
     public function columns(): array
     {
         return [
-            Column::make(__('fields.id'), "id")
+            Column::make(__('fields.id'), 'id')
                 ->sortable()->searchable(),
 
-            Column::make(__('fields.name'), "name")
+            Column::make(__('fields.name'), 'name')
                 ->sortable()->searchable(),
 
-            Column::make(__('fields.email'), "email")
+            Column::make(__('fields.email'), 'email')
                 ->sortable()->searchable(),
 
-            BooleanColumn::make(__('fields.email_verified'), "email_verified_at")
+            BooleanColumn::make(__('fields.email_verified'), 'email_verified_at')
                 ->sortable(),
 
             ButtonGroupColumn::make(__('admin.actions'))
-                ->buttons($this->getActionButtons())
+                ->buttons($this->getActionButtons()),
         ];
     }
 

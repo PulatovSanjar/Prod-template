@@ -1,18 +1,19 @@
 <?php
+declare(strict_types=1);
 
 namespace App\Http\Controllers\Admin;
 
-use App\Exceptions\ModuleNotFoundException;
-use App\Http\Controllers\AdminController;
-use App\Http\Requests\Admin\Users\CreateUserRequest;
-use App\Http\Requests\Admin\Users\UpdateUserRequest;
 use App\Models\Role;
 use App\Models\User;
-use Illuminate\Contracts\Foundation\Application;
-use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Contracts\View\Factory;
+use App\Http\Controllers\AdminController;
+use App\Exceptions\ModuleNotFoundException;
+use Illuminate\Contracts\Foundation\Application;
+use App\Http\Requests\Admin\Users\CreateUserRequest;
+use App\Http\Requests\Admin\Users\UpdateUserRequest;
 
 class UserController extends AdminController
 {
@@ -36,7 +37,7 @@ class UserController extends AdminController
         $roles = Role::query()->pluck('title', 'id');
 
         return $this->view('admin.views.' . $this->module . '.store', [
-            'roles' => $roles
+            'roles' => $roles,
         ]);
     }
 
@@ -44,7 +45,7 @@ class UserController extends AdminController
      * @param CreateUserRequest $request
      * @return RedirectResponse
      */
-    public function store(CreateUserRequest $request): \Illuminate\Http\RedirectResponse
+    public function store(CreateUserRequest $request): RedirectResponse
     {
         $inputs = $request->validated();
 
@@ -71,7 +72,7 @@ class UserController extends AdminController
 
         return $this->view('admin.views.' . $this->module . '.update', [
             'roles' => $roles,
-            'model' => $user
+            'model' => $user,
         ]);
     }
 

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace App\Providers;
 
@@ -33,7 +34,7 @@ class TranslatorServiceProvider extends ServiceProvider
             if (isset($hardTranslations[$translation->key])) {
 
                 app('translator')->addLines([
-                    $translation->key => $translation->translate(app()->getLocale())?->value
+                    $translation->key => $translation->translate(app()->getLocale())?->value,
                 ], app()->getLocale());
 
             }

@@ -1,18 +1,14 @@
 <?php
+declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Exceptions\ModuleNotFoundException;
-use App\Http\Controllers\Traits\HasJsonResponseTrait;
-use App\Http\Controllers\Traits\HasNotificationTrait;
-use App\Http\Controllers\Traits\HasPermissionTrait;
-use Illuminate\Contracts\Foundation\Application;
-use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Foundation\Bus\DispatchesJobs;
-use Illuminate\Foundation\Validation\ValidatesRequests;
-use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Contracts\View\Factory;
+use App\Exceptions\ModuleNotFoundException;
+use Illuminate\Contracts\Foundation\Application;
+use App\Http\Controllers\Traits\HasPermissionTrait;
+use App\Http\Controllers\Traits\HasNotificationTrait;
 
 class AdminController extends Controller
 {
@@ -35,7 +31,7 @@ class AdminController extends Controller
         }
 
         return view($view, array_merge([
-            'module' => $this->module
+            'module' => $this->module,
         ], $withData));
     }
 

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace App\Classes;
 
@@ -21,9 +22,9 @@ Class Base64Converter
 
     public function __construct(string $base64)
     {
-        $this->base64    = $base64;
+        $this->base64 = $base64;
         $this->extension = $this->getExtension();
-        $this->data      = $this->getData();
+        $this->data = $this->getData();
     }
 
     /**

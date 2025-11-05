@@ -1,12 +1,13 @@
 <?php
+declare(strict_types=1);
 
 namespace App\Http\Livewire\Dynamics;
 
-use Illuminate\Contracts\Foundation\Application;
-use Illuminate\Contracts\View\Factory;
-use Illuminate\Contracts\View\View;
-use Illuminate\Support\Facades\Storage;
 use Livewire\WithFileUploads;
+use Illuminate\Contracts\View\View;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Contracts\Foundation\Application;
 
 class ImageDynamic extends AbstractDynamic
 {
@@ -22,7 +23,7 @@ class ImageDynamic extends AbstractDynamic
         'position'  => 0,
         'status'    => 0,
         'submitted' => false,
-        'existedId' => null
+        'existedId' => null,
     ];
 
     /**
@@ -32,7 +33,7 @@ class ImageDynamic extends AbstractDynamic
         'image'    => 'required|image|mimes:png,jpg,jpeg|max:3072',
         'position' => 'required|integer|min:0',
         'status'   => 'required|boolean',
-        'existedId' => 'nullable'
+        'existedId' => 'nullable',
     ];
 
     /**
@@ -50,12 +51,12 @@ class ImageDynamic extends AbstractDynamic
                 'position'     => $item->position,
                 'status'       => $item->status,
                 'submitted'    => true,
-                'existedId'    => $item->id
+                'existedId'    => $item->id,
             ];
         }
 
         $this->fill([
-            $this->fieldName => $images
+            $this->fieldName => $images,
         ]);
     }
 

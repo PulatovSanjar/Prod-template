@@ -1,15 +1,16 @@
 <?php
+declare(strict_types=1);
 
 namespace App\Http\Controllers\Admin;
 
-use App\Exceptions\ModuleNotFoundException;
-use App\Http\Controllers\AdminController;
 use App\Models\Variable;
-use Illuminate\Contracts\Foundation\Application;
-use Illuminate\Contracts\View\Factory;
+use Illuminate\Http\Request;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
+use Illuminate\Contracts\View\Factory;
+use App\Http\Controllers\AdminController;
+use App\Exceptions\ModuleNotFoundException;
+use Illuminate\Contracts\Foundation\Application;
 
 class VariableController extends AdminController
 {
@@ -22,7 +23,7 @@ class VariableController extends AdminController
     public function index(): Factory|View|Application
     {
         return $this->view('admin.views.' . $this->module . '.index', [
-            'variables' => Variable::query()->get()
+            'variables' => Variable::query()->get(),
         ]);
     }
 

@@ -1,6 +1,6 @@
 <?php
+declare(strict_types=1);
 
-use App\Exceptions\VariableNotFoundException;
 use App\Models\Variable;
 use Illuminate\Support\Facades\DB;
 
@@ -56,14 +56,14 @@ if (!function_exists('isDatabaseAvailable')) {
         /**
          * @param string $key
          * @return mixed
-         * @throws VariableNotFoundException
+         * @throws Exception
          */
         function getVariable(string $key): mixed
         {
             $variable = Variable::query()->where('key', $key)->first();
 
             if (!$variable) {
-                throw new VariableNotFoundException('Variable with key "' . $key . '" not found');
+                throw new Exception('Variable with key "' . $key . '" not found');
             }
 
             return $variable->value;

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 use Illuminate\Support\Facades\Facade;
 
@@ -195,8 +196,8 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
         Flasher\Laravel\FlasherServiceProvider::class,
-        \App\Providers\PermissionServiceProvider::class,
-        \App\Providers\TranslatorServiceProvider::class
+        App\Providers\PermissionServiceProvider::class,
+        App\Providers\TranslatorServiceProvider::class,
 
     ],
 

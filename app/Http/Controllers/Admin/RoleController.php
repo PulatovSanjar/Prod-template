@@ -1,17 +1,18 @@
 <?php
+declare(strict_types=1);
 
 namespace App\Http\Controllers\Admin;
 
-use App\Exceptions\ModuleNotFoundException;
-use App\Http\Controllers\AdminController;
-use App\Http\Requests\Admin\Roles\CreateRoleRequest;
-use App\Http\Requests\Admin\Roles\UpdateRoleRequest;
-use App\Models\Permission;
 use App\Models\Role;
-use Illuminate\Contracts\Foundation\Application;
-use Illuminate\Contracts\View\Factory;
+use App\Models\Permission;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Contracts\View\Factory;
+use App\Http\Controllers\AdminController;
+use App\Exceptions\ModuleNotFoundException;
+use Illuminate\Contracts\Foundation\Application;
+use App\Http\Requests\Admin\Roles\CreateRoleRequest;
+use App\Http\Requests\Admin\Roles\UpdateRoleRequest;
 
 class RoleController extends AdminController
 {
@@ -38,7 +39,7 @@ class RoleController extends AdminController
         $permissions = Permission::query()->pluck('title', 'id');
 
         return $this->view('admin.views.' . $this->module . '.store', [
-            'permissions' => $permissions
+            'permissions' => $permissions,
         ]);
     }
 
@@ -71,7 +72,7 @@ class RoleController extends AdminController
 
         return $this->view('admin.views.' . $this->module . '.update', [
             'permissions' => $permissions,
-            'model'       => $role
+            'model'       => $role,
         ]);
     }
 

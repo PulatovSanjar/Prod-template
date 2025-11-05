@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace App\Models;
 
@@ -12,7 +13,7 @@ class Role extends Model
      */
     protected $dates = [
         self::CREATED_AT,
-        self::UPDATED_AT
+        self::UPDATED_AT,
     ];
 
     /**
@@ -20,7 +21,7 @@ class Role extends Model
      */
     protected $fillable = [
         'title',
-        'key'
+        'key',
     ];
 
     /**

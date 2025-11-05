@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace App\Models;
 
@@ -11,7 +12,7 @@ class Variable extends Model
      */
     protected $dates = [
         self::CREATED_AT,
-        self::UPDATED_AT
+        self::UPDATED_AT,
     ];
 
     /**
@@ -19,6 +20,6 @@ class Variable extends Model
      */
     protected $fillable = [
         'key',
-        'value'
+        'value',
     ];
 }

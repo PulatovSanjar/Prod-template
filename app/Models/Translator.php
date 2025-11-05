@@ -1,9 +1,10 @@
 <?php
+declare(strict_types=1);
 
 namespace App\Models;
 
-use Astrotomic\Translatable\Translatable;
 use Illuminate\Database\Eloquent\Model;
+use Astrotomic\Translatable\Translatable;
 
 class Translator extends Model
 {
@@ -11,14 +12,14 @@ class Translator extends Model
 
     protected $dates = [
         self::CREATED_AT,
-        self::UPDATED_AT
+        self::UPDATED_AT,
     ];
 
     public array $translatedAttributes = [
-        'value'
+        'value',
     ];
 
     protected $fillable = [
-        'key'
+        'key',
     ];
 }

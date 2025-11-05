@@ -1,10 +1,11 @@
 <?php
+declare(strict_types=1);
 
 namespace App\Http\DTOs;
 
+use Illuminate\Support\Str;
 use App\Contracts\DTOContract;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 
 class RegisterUserDTO implements DTOContract
 {
@@ -32,7 +33,7 @@ class RegisterUserDTO implements DTOContract
      * @param array $data
      * @return RegisterUserDTO
      */
-    public static function transform(array $data): RegisterUserDTO
+    public static function transform(array $data): self
     {
         $object = new self();
 
@@ -53,7 +54,7 @@ class RegisterUserDTO implements DTOContract
             'name'      => $this->name,
             'email'     => $this->email,
             'password'  => $this->password,
-            'email_verification_token' => $this->email_verification_token
+            'email_verification_token' => $this->email_verification_token,
         ];
     }
 }

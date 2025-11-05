@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace App\Services;
 
@@ -8,7 +9,7 @@ use Illuminate\Support\Str;
 class TranslatorService
 {
     /**
-     * Get all locales in /lang directory
+     * Get all locales in /lang directory.
      *
      * @return array
      */
@@ -26,7 +27,7 @@ class TranslatorService
     }
 
     /**
-     * Get all name of files without the extension
+     * Get all name of files without the extension.
      *
      * @param string $locale
      * @return array
@@ -40,7 +41,7 @@ class TranslatorService
     }
 
     /**
-     * Get all translations in /lang/{$locale} directory
+     * Get all translations in /lang/{$locale} directory.
      *
      * @param string $locale
      * @return array

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace App\Http\Requests\Admin\Roles;
 
@@ -29,7 +30,7 @@ class UpdateRoleRequest extends FormRequest
             'title'         => 'required|string|max:191|min:3',
             'key'           => 'required|string|unique:roles,key,' . $role . ',id',
             'permissions'   => 'nullable|array',
-            'permissions.*' => 'nullable|exists:permissions,id'
+            'permissions.*' => 'nullable|exists:permissions,id',
         ];
     }
 }

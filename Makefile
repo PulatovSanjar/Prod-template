@@ -1,9 +1,6 @@
-# minimal Makefile
 DC ?= docker compose
-PROJECT ?= magma-bank-service
 PHP ?= php
-
-.PHONY: up down build restart ps logs sh artisan migrate seed comp-install comp-update
+COMPOSER ?= composer
 
 up:        ## start stack
 	$(DC) up -d
@@ -11,8 +8,11 @@ up:        ## start stack
 down:      ## stop & remove containers
 	$(DC) down --remove-orphans
 
-build:     ## build images
-	$(DC) build --pull
+composer-install:
+	$(DC) run --rm $(COMPOSER) composer install
+
+composer-update:
+	$(DC) run --rm $(COMPOSER) composer update
 
 restart:   ## restart stack
 	$(DC) down --remove-orphans
@@ -21,11 +21,12 @@ restart:   ## restart stack
 artisan:   ## run artisan: make artisan cmd="optimize:clear"
 	$(DC) exec $(PHP) php artisan $(cmd)
 
-migrate:   ## run migrations + seed
-	$(DC) exec $(PHP) php artisan migrate --seed
+cs-fix:
+	$(DC) run --rm $(COMPOSER) ./vendor/bin/php-cs-fixer fix
 
-composer-install: ## composer install
-	$(DC) run --rm $(PHP) composer install
+analyze:
+	$(DC) run --rm $(COMPOSER) ./vendor/bin/phpstan analyse --memory-limit=-1
 
-composer-update:  ## composer update
-	$(DC) run --rm $(PHP) composer update
+fix:
+	$(DC) run --rm $(COMPOSER) ./vendor/bin/php-cs-fixer fix
+	$(DC) run --rm $(COMPOSER) ./vendor/bin/phpstan analyse --memory-limit=-1

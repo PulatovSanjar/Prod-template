@@ -1,9 +1,10 @@
 <?php
+declare(strict_types=1);
 
 namespace App\Http\Requests\Admin\Users;
 
-use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Password;
+use Illuminate\Foundation\Http\FormRequest;
 
 class CreateUserRequest extends FormRequest
 {
@@ -29,7 +30,7 @@ class CreateUserRequest extends FormRequest
             'email'             => 'required|email|unique:users,email',
             'password'          => ['required', new Password(6), 'confirmed'],
             'roles'             => 'required|array|min:1',
-            'roles.*'           => 'required|exists:roles,id'
+            'roles.*'           => 'required|exists:roles,id',
         ];
     }
 }

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace App\Http\Requests\Admin\Users;
 
@@ -30,7 +31,7 @@ class UpdateUserRequest extends FormRequest
             'email'             => 'required|email|unique:users,email,' . $user . ',id',
             'email_verified_at' => 'required|boolean',
             'roles'             => 'required|array|min:1',
-            'roles.*'           => 'required|exists:roles,id'
+            'roles.*'           => 'required|exists:roles,id',
         ];
     }
 }

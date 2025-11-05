@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 return [
 
@@ -294,7 +295,7 @@ return [
         [
             'type'         => 'darkmode-widget',
             'topnav_right' => true,
-            'key'          => 'sidebar'
+            'key'          => 'sidebar',
         ],
         [
             'type'         => 'fullscreen-widget',
@@ -373,7 +374,6 @@ return [
 //                ],
             ],
         ],
-
 
     ],
 

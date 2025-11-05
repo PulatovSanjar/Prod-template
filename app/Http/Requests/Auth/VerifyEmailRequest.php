@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace App\Http\Requests\Auth;
 
@@ -24,7 +25,7 @@ class VerifyEmailRequest extends FormRequest
     public function rules()
     {
         return [
-            'token'     => 'required|exists:users,email_verification_token'
+            'token'     => 'required|exists:users,email_verification_token',
         ];
     }
 }
