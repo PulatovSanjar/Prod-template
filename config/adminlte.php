@@ -337,6 +337,43 @@ return [
                 ],
             ],
         ],
+        [
+            'text'   => 'bank',
+            'icon'   => 'fas fa-university',
+            'submenu'=> [
+                [
+                    'text'        => 'Wallet',
+                    'url'         => 'admin/variables',
+                    'icon'        => 'fas fa-wallet',
+                    'can'         => 'variables_access',
+                    'key'         => 'variables',
+                    'active'      => ['admin/variables/*'],
+                ],
+                [
+                    'text'        => 'Transactions',
+                    'url'         => 'admin/variables',
+                    'icon'        => 'fas fa-exchange-alt',
+                    'key'         => 'variables',
+                    'active'      => ['admin/translators/*'],
+                    'can'         => 'variables_access',
+                ],
+//                [
+//                    'text'   => 'bank_cards',
+//                    'route'  => 'admin/translators',
+//                    'icon'   => 'fas fa-credit-card',
+//                    'key'    => 'bank_cards',
+//                    'active' => ['admin/translators/*'],
+//                ],
+//                [
+//                    'text'   => 'bank_branches',
+//                    'route'  => 'admin/translators',
+//                    'icon'   => 'fas fa-building',
+//                    'key'    => 'bank_branches',
+//                    'active' => ['admin/translators/*'],
+//                ],
+            ],
+        ],
+
 
     ],
 

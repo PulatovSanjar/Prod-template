@@ -11,16 +11,11 @@ use Illuminate\Support\Facades\Route;
 Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
 
     Route::middleware(['auth:web'])->group(function () {
-
         Route::get('/', [DashboardController::class, 'index'])->name('home');
-
         Route::resource('roles', RoleController::class);
-
         Route::resource('users', UserController::class);
-
         Route::resource('translators', TranslatorController::class)
             ->only(['index', 'store']);
-
         Route::resource('variables', VariableController::class)
             ->only(['index', 'store']);
 
