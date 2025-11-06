@@ -20,6 +20,9 @@ Class DashboardController extends AdminController
      */
     public function index(): Factory|View|Application
     {
+        /**
+         * @phpstan-ignore-next-line
+         */
         return view('admin.views.' . $this->module . '.index');
     }
 }

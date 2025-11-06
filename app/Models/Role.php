@@ -11,13 +11,13 @@ class Role extends Model
     /**
      * @var array
      */
-    protected $dates = [
+    protected array $dates = [
         self::CREATED_AT,
         self::UPDATED_AT,
     ];
 
     /**
-     * @var string[]
+     * @var list<string>
      */
     protected $fillable = [
         'title',

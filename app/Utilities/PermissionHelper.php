@@ -25,6 +25,7 @@ class PermissionHelper
         foreach (self::$default as $item) {
             $permissions[] = $title . self::$delimiter . $item;
         }
+
         return $permissions;
     }
 

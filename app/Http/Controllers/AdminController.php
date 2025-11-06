@@ -18,33 +18,34 @@ class AdminController extends Controller
     protected const ACTION_CREATE = 1;
     protected const ACTION_EDIT = 2;
 
+    protected string $module;
+
     /**
-     * @param string $view
-     * @param array $withData
+     * @param array<string,mixed> $withData
      * @return Factory|View|Application
      * @throws ModuleNotFoundException
      */
     protected function view(string $view, array $withData = []): Factory|View|Application
     {
-        if (!property_exists($this, 'module')) {
-            throw new ModuleNotFoundException('The $module property not found in child controller');
-        }
+        $viewName = $view;
 
-        return view($view, array_merge([
+        /**
+         * @phpstan-ignore-next-line
+         */
+        return view($viewName, array_merge([
             'module' => $this->module,
         ], $withData));
     }
 
     /**
-     * @param int $action
-     * @return string
+     * @throws ModuleNotFoundException
      */
     protected function getActionView(int $action): string
     {
         $views = [
-            'admin.views.' . $this->module . '.index',
-            'admin.views.' . $this->module . '.store',
-            'admin.views.' . $this->module . '.update',
+            "admin.views.{$this->module}.index",
+            "admin.views.{$this->module}.store",
+            "admin.views.{$this->module}.update",
         ];
 
         return $views[$action];

@@ -9,34 +9,37 @@ use Illuminate\Support\ServiceProvider;
 
 class TranslatorServiceProvider extends ServiceProvider
 {
-    /**
-     * Bootstrap services.
-     *
-     * @return void
-     */
-    public function boot()
+    public function boot(): void
     {
         if (isDatabaseAvailable('translators')) {
             $this->replaceTranslations();
         }
     }
 
-    private function replaceTranslations()
+    private function replaceTranslations(): void
     {
         /** @var TranslatorService $service */
-        $service = resolve(TranslatorService::class);
-        $hardTranslations = $service->getAllTranslations(app()->getLocale());
+        $service = app(TranslatorService::class);
 
-        $translations = Translator::query()->with('translations')->get();
+        $locale = app()->getLocale();
+        $hardTranslations = $service->getAllTranslations($locale);
+
+        /** @var \Illuminate\Database\Eloquent\Collection<int, Translator> $translations */
+        $translations = Translator::query()
+            ->with('translations')
+            ->get();
 
         foreach ($translations as $translation) {
+            if (!isset($hardTranslations[$translation->key])) {
+                continue;
+            }
 
-            if (isset($hardTranslations[$translation->key])) {
+            $line = $translation->translate($locale)?->getAttribute('value');
 
+            if ($line !== null) {
                 app('translator')->addLines([
-                    $translation->key => $translation->translate(app()->getLocale())?->value,
-                ], app()->getLocale());
-
+                    $translation->key => $line,
+                ], $locale);
             }
         }
     }

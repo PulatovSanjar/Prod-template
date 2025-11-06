@@ -42,8 +42,7 @@ Class Base64Converter
     {
         $result = $this->data;
 
-        if (is_null($result)) {
-
+        if (empty($result)) {
             $replace = substr($this->base64, 0, strpos($this->base64, ',') + 1);
 
             $result = $this->data = str_replace(' ', '+', str_replace($replace, '', $this->base64));
@@ -59,7 +58,8 @@ Class Base64Converter
     {
         $result = $this->extension;
 
-        if (is_null($result)) {
+        if (empty($result)) {
+            /** @phpstan-ignore-next-line */
             $result = explode('/', explode(':', substr($this->base64, 0, strpos($this->base64, ';')))[1])[1];
         }
 

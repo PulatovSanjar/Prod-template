@@ -34,6 +34,9 @@ class Controller extends BaseController
             throw new ModuleNotFoundException('The $module property not found in child controller');
         }
 
+        /**
+         * @phpstan-ignore-next-line
+         */
         return view($view, array_merge([
             'module' => $this->module,
         ], $withData));

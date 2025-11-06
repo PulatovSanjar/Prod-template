@@ -3,32 +3,25 @@ declare(strict_types=1);
 
 namespace App\Http\Livewire\Dynamics;
 
+use Illuminate\View\View;
 use Livewire\WithFileUploads;
-use Illuminate\Contracts\View\View;
-use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\Factory; // важно: конкретный View
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Contracts\Foundation\Application;
 
 class ImageDynamic extends AbstractDynamic
 {
     use WithFileUploads;
 
-    public $modelImages;
+    public array $modelImages = [];
 
-    /**
-     * @var array
-     */
     public array $defaultRows = [
         'image'     => null,
         'position'  => 0,
-        'status'    => 0,
+        'status'    => false,  // ← bool, а не 0/1
         'submitted' => false,
         'existedId' => null,
     ];
 
-    /**
-     * @var array|string[]
-     */
     protected array $validationRules = [
         'image'    => 'required|image|mimes:png,jpg,jpeg|max:3072',
         'position' => 'required|integer|min:0',
@@ -36,56 +29,46 @@ class ImageDynamic extends AbstractDynamic
         'existedId' => 'nullable',
     ];
 
-    /**
-     * @var string
-     */
+    /** @var non-empty-string */
     public string $fieldName = 'images';
 
-    public function mount()
+    public function mount(): void
     {
-        $images = [];
+        parent::mount(); // гарантирует, что $this->{$fieldName} инициализирован как массив
 
-        foreach ($this->modelImages ?? [] as $item) {
-            $images[] = [
-                'image'        => Storage::disk('public')->url($item->path),
-                'position'     => $item->position,
-                'status'       => $item->status,
-                'submitted'    => true,
-                'existedId'    => $item->id,
+        $localeImages = [];
+
+        foreach ($this->modelImages as $item) {
+            $localeImages[] = [
+                'image'     => Storage::disk('public')->url($item->path),
+                'position'  => (int) $item->position,
+                'status'    => (bool) $item->status,
+                'submitted' => true,
+                'existedId' => (int) $item->id,
             ];
         }
 
         $this->fill([
-            $this->fieldName => $images,
+            $this->fieldName => $localeImages,
         ]);
     }
 
-    /**
-     * @return void
-     */
     public function addRow(): void
     {
         $this->submitAllRows();
-
         $this->{$this->fieldName}[] = $this->defaultRows;
     }
 
-    /**
-     * @return void
-     */
     protected function submitAllRows(): void
     {
-
-        foreach ($this->{$this->fieldName} as $key => $row) {
+        foreach ($this->{$this->fieldName} as $key => $_row) {
             $this->submitRow($key, false);
         }
     }
 
-    /**
-     * @return Factory|View|Application
-     */
-    public function render()
+    public function render(): Factory|\Illuminate\Contracts\View\View
     {
+        /** @phpstan-ignore-next-line  */
         return view('livewire.image-dynamic');
     }
 }

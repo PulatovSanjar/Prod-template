@@ -36,7 +36,7 @@ class AuthController extends AdminController
     public function login(LoginRequest $request): Redirector|Application|RedirectResponse
     {
         if(auth('web')->attempt($request->validated())) {
-            if (auth('web')->user()->roles()->where('key', 'admin')->count() > 0) {
+            if (auth('web')->user()?->roles()->where('key', 'admin')->count() > 0) {
 
                 return redirect('/admin');
             } else {

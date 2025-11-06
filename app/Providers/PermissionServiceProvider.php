@@ -10,28 +10,33 @@ use Illuminate\Support\ServiceProvider;
 
 class PermissionServiceProvider extends ServiceProvider
 {
-    /**
-     * Bootstrap services.
-     *
-     * @return void
-     */
-    public function boot()
+    public function boot(): void
     {
         if (isDatabaseAvailable('permissions')) {
             $this->registerPermissions();
         }
     }
 
-    private function registerPermissions()
+    private function registerPermissions(): void
     {
         $permissions = Permission::query()->get();
 
         foreach ($permissions as $permission) {
+            $callback = new class($permission) {
+                public function __construct(private Permission $permission) {}
 
-            Gate::define($permission->title, function (User $user) use ($permission) {
-                return $user->roles()->withWhereHas('permissions', fn ($query) => $query->where('title', $permission->title))->exists();
-            });
+                public function __invoke(User $user): bool
+                {
+                    return $user->roles()
+                        ->withWhereHas(
+                            'permissions',
+                            fn ($q) => $q->where('title', $this->permission->title)
+                        )
+                        ->exists();
+                }
+            };
 
+            Gate::define($permission->title, [$callback, '__invoke']);
         }
     }
 }

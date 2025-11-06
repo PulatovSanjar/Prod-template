@@ -16,7 +16,7 @@ class Variable extends Model
     ];
 
     /**
-     * @var string[]
+     * @var list<string>
      */
     protected $fillable = [
         'key',

@@ -4,22 +4,20 @@ declare(strict_types=1);
 namespace App\Rules\Auth;
 
 use App\Models\User;
-use Illuminate\Contracts\Validation\Rule;
+use Illuminate\Contracts\Validation\ValidationRule;
 
-class HasVerifyEmailRule implements Rule
+class HasVerifyEmailRule implements ValidationRule
 {
-    /**
-     * Determine if the validation rule passes.
-     *
-     * @param  string  $attribute
-     * @param  mixed  $value
-     * @return bool
-     */
-    public function passes($attribute, $value)
+    public function validate(string $attribute, mixed $value, \Closure $fail): void
     {
-        $user = User::query()->where('email', $value)->first();
+        $ok = User::query()
+            ->where('email', (string) $value)
+            ->whereNotNull('email_verified_at')
+            ->exists();
 
-        return !is_null($user->email_verified_at);
+        if ($ok) {
+            $fail(__('validation.email_unverified'));
+        }
     }
 
     /**

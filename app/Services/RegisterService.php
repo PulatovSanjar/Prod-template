@@ -29,13 +29,15 @@ class RegisterService
 
     /**
      * @param string $token
-     * @return bool|int
+     * @return bool
      */
-    public function verifyEmail(string $token): bool|int
+    public function verifyEmail(string $token): bool
     {
-        $user = User::query()->where('email_verification_token', $token)->first();
+        $user = User::query()
+            ->where('email_verification_token', $token)
+            ->firstOrFail(); // <- гарантирует User, не null
 
-        return $user->update(['email_verified_at' => now()]);
+        return $user->forceFill(['email_verified_at' => now()])->save();
     }
 
     /**

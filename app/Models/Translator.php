@@ -10,7 +10,7 @@ class Translator extends Model
 {
     use Translatable;
 
-    protected $dates = [
+    protected array $dates = [
         self::CREATED_AT,
         self::UPDATED_AT,
     ];

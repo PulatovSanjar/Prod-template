@@ -24,19 +24,21 @@ class TranslatorController extends AdminController
         $languages = $service->getAllLocales();
         $translations = [];
 
-        $translationsModel = Translator::query()->with('translations')->get();
+        $translationsModel = Translator::query()
+            ->with('translations')
+            ->get()
+            ->keyBy('key'); // удобно доставать по ключу
 
         foreach ($languages as $language) {
-
             $trans = $service->getAllTranslations($language);
-            foreach ($trans as $field => $value) {
 
-                $translations[$field][$language] = $translationsModel->where('key', $field)->count() ?
-                    $translationsModel->where('key', $field)->first()->translate($language)->value :
-                    $value;
+            foreach ($trans as $field => $fallbackValue) {
+                $model = $translationsModel->get($field);
 
+                $line = $model?->translate($language)?->getAttribute('value');
+
+                $translations[$field][$language] = $line ?? $fallbackValue;
             }
-
         }
 
         return $this->view('admin.views.' . $this->module . '.index', [
