@@ -9,9 +9,6 @@ use App\Exceptions\RoleNotFound;
 
 class PermissionHelper
 {
-    /**
-     * @var array|string[]
-     */
     protected static array $default = [
         'access',
         'create',
@@ -19,64 +16,47 @@ class PermissionHelper
         'delete',
     ];
 
-    /**
-     * @var string
-     */
     protected static string $adminRole = 'admin';
-
-    /**
-     * @var string
-     */
     protected static string $delimiter = '_';
 
-    /**
-     * @param string $title
-     * @return array
-     */
     public static function make(string $title): array
     {
         $permissions = [];
-
         foreach (self::$default as $item) {
             $permissions[] = $title . self::$delimiter . $item;
         }
-
         return $permissions;
     }
 
     /**
-     * @param string $title
-     * @return void
+     * Генерирует пермишены и назначает их админ-роли.
+     *
      * @throws RoleNotFound
      */
     public static function apply(string $title): void
     {
-        $permissions = self::make($title);
+        $permissionTitles = self::make($title);
 
-        foreach ($permissions as $permission) {
-
-            /** @var Permission $permission */
-            $permission = Permission::query()->firstOrCreate(['title' => $permission]);
-            self::assignToAdmin($permission);
+        foreach ($permissionTitles as $permTitle) {
+            $permModel = Permission::query()->firstOrCreate(['title' => $permTitle]);
+            self::assignToAdmin($permModel);
         }
     }
 
     /**
-     * @param Permission $permission
-     * @return void
+     * Назначает один пермишен админ-роли (без дублей).
+     *
      * @throws RoleNotFound
      */
     public static function assignToAdmin(Permission $permission): void
     {
-        /** @var Role $role */
         $role = Role::query()->where('key', self::$adminRole)->first();
 
-        if (!$role) {
+        if ($role === null) {
             throw new RoleNotFound('Admin role not found');
         }
 
-        if (!$role->permissions()->find($permission)) {
-            $role->permissions()->attach($permission);
-        }
+        // Без предварительных find/if: безопасно добавит, если ещё нет.
+        $role->permissions()->syncWithoutDetaching([$permission->getKey()]);
     }
 }

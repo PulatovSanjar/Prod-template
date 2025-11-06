@@ -18,7 +18,7 @@ restart:   ## restart stack
 	$(DC) down --remove-orphans
 	$(DC) up -d
 
-artisan:   ## run artisan: make artisan cmd="optimize:clear"
+php-artisan:   ## run artisan: make artisan cmd="optimize:clear"
 	$(DC) exec $(PHP) php artisan $(cmd)
 
 cs-fix:
