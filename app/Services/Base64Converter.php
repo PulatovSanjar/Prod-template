@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Classes;
+namespace App\Services;
 
 Class Base64Converter
 {
