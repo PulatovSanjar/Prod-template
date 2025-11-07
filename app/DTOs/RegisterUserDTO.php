@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Http\DTOs;
+namespace App\DTOs;
 
 use Illuminate\Support\Str;
 use App\Contracts\DTOContract;

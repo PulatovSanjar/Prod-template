@@ -17,10 +17,7 @@ use App\Http\Controllers\Auth\RegisterController;
 */
 
 Route::prefix('auth')->group(function () {
-
     Route::post('register', [RegisterController::class, 'store']);
     Route::post('verify-email', [RegisterController::class, 'verifyEmail']);
-
     Route::post('login', [LoginController::class, 'loginViaEmail']);
-
 });
