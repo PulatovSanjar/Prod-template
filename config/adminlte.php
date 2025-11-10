@@ -344,10 +344,10 @@ return [
             'submenu'=> [
                 [
                     'text'        => 'Wallet',
-                    'url'         => 'admin/variables',
+                    'url'         => 'admin/wallet',
                     'icon'        => 'fas fa-wallet',
                     'key'         => 'variables',
-                    'active'      => ['admin/variables/*'],
+                    'active'      => ['admin/wallet/*'],
                 ],
                 [
                     'text'        => 'Transactions',

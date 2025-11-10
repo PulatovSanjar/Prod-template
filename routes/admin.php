@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 
+use App\Http\Controllers\Admin\WalletController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\RoleController;
@@ -14,6 +15,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
     Route::middleware(['auth:web'])->group(function () {
         Route::get('/', [DashboardController::class, 'index'])->name('home');
         Route::resource('roles', RoleController::class);
+        Route::resource('wallet', WalletController::class);
         Route::resource('users', UserController::class);
         Route::resource('translators', TranslatorController::class)
             ->only(['index', 'store']);

@@ -4,7 +4,7 @@ return [
 
     'roles'                 => 'Roles',
     'settings'              => 'Settings',
-    'bank'                  => 'Bank',
+    'bank'                  => 'bank',
     'users'                 => 'Users',
     'translations'          => 'Translations',
     'variables'             => 'Variables'
