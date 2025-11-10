@@ -346,7 +346,6 @@ return [
                     'text'        => 'Wallet',
                     'url'         => 'admin/variables',
                     'icon'        => 'fas fa-wallet',
-                    'can'         => 'variables_access',
                     'key'         => 'variables',
                     'active'      => ['admin/variables/*'],
                 ],
@@ -356,7 +355,6 @@ return [
                     'icon'        => 'fas fa-exchange-alt',
                     'key'         => 'variables',
                     'active'      => ['admin/translators/*'],
-                    'can'         => 'variables_access',
                 ],
 //                [
 //                    'text'   => 'bank_cards',

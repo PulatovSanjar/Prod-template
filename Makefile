@@ -18,8 +18,8 @@ restart:   ## restart stack
 	$(DC) down --remove-orphans
 	$(DC) up -d
 
-php-artisan:   ## run artisan: make artisan cmd="optimize:clear"
-	$(DC) exec $(PHP) php artisan $(cmd)
+laravel:   ## run artisan: make laravel name="optimize:clear"
+	$(DC) exec $(PHP) php artisan $(name)
 
 cs-fix:
 	$(DC) run --rm $(COMPOSER) ./vendor/bin/php-cs-fixer fix

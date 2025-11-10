@@ -28,6 +28,8 @@ class RoleSeeder extends Seeder
             PermissionHelper::make('dashboard'),
             PermissionHelper::make('roles'),
             PermissionHelper::make('users'),
+            PermissionHelper::make('translators'),
+            PermissionHelper::make('variables'),
         );
 
         $permIds = Permission::query()

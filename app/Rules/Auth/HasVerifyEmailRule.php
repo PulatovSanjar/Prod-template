@@ -15,7 +15,7 @@ class HasVerifyEmailRule implements ValidationRule
             ->whereNotNull('email_verified_at')
             ->exists();
 
-        if ($ok) {
+        if (!$ok) {
             $fail(__('validation.email_unverified'));
         }
     }
