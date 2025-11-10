@@ -21,6 +21,7 @@ class PermissionSeeder extends Seeder
             PermissionHelper::make('users'),
             PermissionHelper::make('translators'),
             PermissionHelper::make('variables'),
+            PermissionHelper::make('wallet'),
     );
 
         // Повторно безопасно: создаём только отсутствующие

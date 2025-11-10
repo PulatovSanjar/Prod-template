@@ -12,7 +12,6 @@ class RoleSeeder extends Seeder
 {
     public function run(): void
     {
-        // Создаём роли (как было в миграции)
         $admin = Role::query()->firstOrCreate(
             ['key' => 'admin'],
             ['title' => 'Admin']
@@ -23,13 +22,13 @@ class RoleSeeder extends Seeder
             ['title' => 'Customer']
         );
 
-        // Навешиваем на admin нужные пермишены (как было в миграции)
         $adminPermissionTitles = array_merge(
             PermissionHelper::make('dashboard'),
             PermissionHelper::make('roles'),
             PermissionHelper::make('users'),
             PermissionHelper::make('translators'),
             PermissionHelper::make('variables'),
+            PermissionHelper::make('wallet'),
         );
 
         $permIds = Permission::query()

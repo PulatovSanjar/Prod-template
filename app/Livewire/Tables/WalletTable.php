@@ -3,9 +3,7 @@ declare(strict_types=1);
 
 namespace App\Livewire\Tables;
 
-use App\Models\Role;
 use App\Models\Wallet;
-use Illuminate\Database\Eloquent\Builder;
 use Rappasoft\LaravelLivewireTables\Views\Column;
 use Rappasoft\LaravelLivewireTables\Views\Columns\ButtonGroupColumn;
 
@@ -40,6 +38,4 @@ class WalletTable extends BaseTable
                 ->buttons($this->getActionButtons()),
         ];
     }
-
-
 }

@@ -24,13 +24,13 @@
 
     "require-dev": {
         "fakerphp/faker": "^1.9.1",
-        "friendsofphp/php-cs-fixer": "^3",
+        "friendsofphp/php-cs-fixer": "^3.89",
         "laravel/pint": "^1.0",
         "laravel/sail": "^1.0.1",
         "mockery/mockery": "^1.4.4",
         "nunomaduro/collision": "^8.8",
         "nunomaduro/larastan": "^3",
-        "phpstan/phpstan": "^2",
+        "phpstan/phpstan": "^2.1",
         "phpunit/phpunit": "^11.5.15",
         "spatie/laravel-ignition": "^2.0"
     },
