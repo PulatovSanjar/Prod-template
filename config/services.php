@@ -32,4 +32,10 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'alchemy' => [
+        'app_id'   => env('ALCHEMY_APP_ID'),
+        'secret'   => env('ALCHEMY_APP_SECRET'),
+        'base_url' => env('ALCHEMY_BASE_URL'),
+    ],
+
 ];
