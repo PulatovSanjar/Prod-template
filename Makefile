@@ -30,3 +30,6 @@ analyze:
 fix:
 	$(DC) run --rm $(COMPOSER) ./vendor/bin/php-cs-fixer fix
 	$(DC) run --rm $(COMPOSER) ./vendor/bin/phpstan analyse --memory-limit=-1
+
+refresh:
+	docker compose exec php php artisan migrate:fresh --seed
