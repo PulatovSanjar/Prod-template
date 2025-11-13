@@ -1,0 +1,61 @@
+<?php
+declare(strict_types=1);
+
+namespace App\Http\Controllers;
+
+use Illuminate\Contracts\View\View;
+use Illuminate\Contracts\View\Factory;
+use App\Exceptions\ModuleNotFoundException;
+use Illuminate\Contracts\Foundation\Application;
+use App\Http\Controllers\Traits\HasPermissionTrait;
+use App\Http\Controllers\Traits\HasNotificationTrait;
+
+class AdminController extends Controller
+{
+    use HasNotificationTrait, HasPermissionTrait;
+
+    protected const ACTION_INDEX = 0;
+    protected const ACTION_CREATE = 1;
+    protected const ACTION_EDIT = 2;
+
+    /**
+     * @param string $view
+     * @param array $withData
+     * @return Factory|View|Application
+     * @throws ModuleNotFoundException
+     */
+    protected function view(string $view, array $withData = []): Factory|View|Application
+    {
+        if (!property_exists($this, 'module')) {
+            throw new ModuleNotFoundException('The $module property not found in child controller');
+        }
+
+        return view($view, array_merge([
+            'module' => $this->module,
+        ], $withData));
+    }
+
+    /**
+     * @param int $action
+     * @return string
+     */
+    protected function getActionView(int $action): string
+    {
+        $views = [
+            'admin.views.' . $this->module . '.index',
+            'admin.views.' . $this->module . '.store',
+            'admin.views.' . $this->module . '.update',
+        ];
+
+        return $views[$action];
+    }
+
+    /**
+     * @return Factory|View|Application
+     * @throws ModuleNotFoundException
+     */
+    public function index(): Factory|View|Application
+    {
+        return $this->view($this->getActionView(self::ACTION_INDEX));
+    }
+}
