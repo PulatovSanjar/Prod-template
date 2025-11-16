@@ -3,72 +3,52 @@ declare(strict_types=1);
 
 use App\Models\Variable;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 if (!function_exists('isDatabaseAvailable')) {
-
-    /**
-     * @return bool
-     */
-    function isDatabaseAvailable(string $table = 'users'): bool
+    function isDatabaseAvailable(?string $table = null): bool
     {
-        $result = false;
-
         try {
-
+            // Есть ли соединение?
             DB::connection()->getPdo();
-            DB::table($table)->get();
 
-            $result = true;
+            // Если таблица указана — проверяем наличие
+            return !$table || Schema::hasTable($table);
+        } catch (Throwable $e) {
+            return false;
+        }
+    }
+}
 
-        } catch (Exception $exception) {
+if (!function_exists('validateLocales')) {
+    function validateLocales(array $rules, array $locales = []): array
+    {
+        $result = [];
+        $locales = empty($locales) ? (array) config('translatable.locales') : $locales;
 
+        foreach ($locales as $locale) {
+            foreach ($rules as $field => $rule) {
+                $result[$locale . '.' . $field] = $rule;
+            }
         }
 
         return $result;
     }
+}
 
-    if (!function_exists('validateLocales')) {
+if (!function_exists('getVariable')) {
 
-        /**
-         * @param array $rules
-         * @param array $locales
-         * @return array
-         */
-        function validateLocales(array $rules, array $locales = []): array
-        {
-            $result = [];
+    /**
+     * @throws RuntimeException
+     */
+    function getVariable(string $key): mixed
+    {
+        $variable = Variable::query()->where('key', $key)->first();
 
-            $locales = empty($locales) ? config('translatable.locales') : $locales;
-
-            foreach ($locales as $locale) {
-                foreach ($rules as $field => $rule) {
-                    $result[$locale . '.' . $field] = $rule;
-                }
-            }
-
-            return $result;
+        if (!$variable) {
+            throw new RuntimeException('Variable with key "' . $key . '" not found');
         }
 
+        return $variable->value;
     }
-
-    if (!function_exists('getVariable')) {
-
-        /**
-         * @param string $key
-         * @return mixed
-         * @throws Exception
-         */
-        function getVariable(string $key): mixed
-        {
-            $variable = Variable::query()->where('key', $key)->first();
-
-            if (!$variable) {
-                throw new Exception('Variable with key "' . $key . '" not found');
-            }
-
-            return $variable->value;
-        }
-
-    }
-
 }

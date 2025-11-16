@@ -56,29 +56,28 @@ services:
     image: mysql:8.0
     restart: unless-stopped
     ports:
-      - "${MYSQL_PORT:-3306}:3306"
+      - "${MYSQL_PORT:-3306}:3306"   # если БД нужна с хоста; иначе лучше убрать
     environment:
-      - MYSQL_DATABASE=${MYSQL_DATABASE:-app}
-      - MYSQL_USER=${MYSQL_USERNAME:-app}
-      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-secret}
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-root}
-      - TZ=UTC
-    command: --default-authentication-plugin=caching_sha2_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      TZ: UTC
+    command: >
+      --default-authentication-plugin=caching_sha2_password
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+      --skip-name-resolve
     volumes:
       - mysql-data-production:/var/lib/mysql
     networks:
       - laravel-production
-    # Health check for MySQL
-    # -----------------------------------------------------------
-    # Health checks allow Docker to determine if a service is operational.
-    # The 'mysqladmin ping' command checks if MySQL is ready to accept connections.
-    # This prevents dependent services from starting before the database is ready.
-    # -----------------------------------------------------------
     healthcheck:
-      test: [ "CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u${MYSQL_USERNAME:-app} -p${MYSQL_PASSWORD:-secret} --silent" ]
+      test: [ "CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u$$MYSQL_USER -p$$MYSQL_PASSWORD --silent" ]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 10
+
 
   redis:
     image: redis:alpine

@@ -1,9 +1,9 @@
-DC ?= docker compose
-PHP ?= php
-COMPOSER ?= composer
+DC ?= docker compose -f docker-compose.dev.yml
+PHP ?= php-fpm
+COMPOSER ?= php-fpm
 
 build:
-	$(DC) -f docker-compose.dev.yml up -d --build
+	$(DC) up -d --build
 
 up:        ## start stack
 	$(DC) up -d
@@ -12,10 +12,10 @@ down:      ## stop & remove containers
 	$(DC) down --remove-orphans
 
 composer-install:
-	$(DC) run --rm $(COMPOSER) composer install
+	$(DC) run --rm $(COMPOSER) composer install --prefer-dist --no-interaction
 
 composer-update:
-	$(DC) run --rm $(COMPOSER) composer update
+	$(DC) run --rm $(COMPOSER) composer update --prefer-dist --no-interaction
 
 restart:   ## restart stack
 	$(DC) down --remove-orphans
@@ -25,14 +25,14 @@ laravel:   ## run artisan: make laravel name="optimize:clear"
 	$(DC) exec $(PHP) php artisan $(name)
 
 cs-fix:
-	$(DC) run --rm $(COMPOSER) ./vendor/bin/php-cs-fixer fix
+	$(DC) run --rm $(PHP) ./vendor/bin/php-cs-fixer fix
 
 analyze:
-	$(DC) run --rm $(COMPOSER) ./vendor/bin/phpstan analyse --memory-limit=-1
+	$(DC) run --rm $(PHP) ./vendor/bin/phpstan analyse --memory-limit=-1
 
 fix:
-	$(DC) run --rm $(COMPOSER) ./vendor/bin/php-cs-fixer fix
-	$(DC) run --rm $(COMPOSER) ./vendor/bin/phpstan analyse --memory-limit=-1
+	$(DC) run --rm $(PHP) ./vendor/bin/php-cs-fixer fix
+	$(DC) run --rm $(PHP) ./vendor/bin/phpstan analyse --memory-limit=-1
 
 refresh:
-	docker compose exec php php artisan migrate:fresh --seed
+	$(DC) exec $(PHP) php artisan migrate:fresh --seed
