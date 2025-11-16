@@ -49,31 +49,33 @@ services:
     # this service will not start until the 'postgres' service passes its health check.
     # This prevents the application from trying to connect to the database before it's ready.
     depends_on:
-      postgres:
+      mysql:
         condition: service_healthy
 
-  postgres:
-    image: postgres:16
+  mysql:
+    image: mysql:8.0
     restart: unless-stopped
-    user: postgres
     ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+      - "${MYSQL_PORT:-3306}:3306"
     environment:
-      - POSTGRES_DB=${POSTGRES_DATABASE:-app}
-      - POSTGRES_USER=${POSTGRES_USERNAME:-laravel}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-secret}
+      - MYSQL_DATABASE=${MYSQL_DATABASE:-app}
+      - MYSQL_USER=${MYSQL_USERNAME:-app}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-secret}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-root}
+      - TZ=UTC
+    command: --default-authentication-plugin=caching_sha2_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     volumes:
-      - postgres-data-production:/var/lib/postgresql/data
+      - mysql-data-production:/var/lib/mysql
     networks:
       - laravel-production
-    # Health check for PostgreSQL
+    # Health check for MySQL
     # -----------------------------------------------------------
     # Health checks allow Docker to determine if a service is operational.
-    # The 'pg_isready' command checks if PostgreSQL is ready to accept connections.
+    # The 'mysqladmin ping' command checks if MySQL is ready to accept connections.
     # This prevents dependent services from starting before the database is ready.
     # -----------------------------------------------------------
     healthcheck:
-      test: [ "CMD", "pg_isready" ]
+      test: [ "CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u${MYSQL_USERNAME:-app} -p${MYSQL_PASSWORD:-secret} --silent" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -103,6 +105,6 @@ networks:
   laravel-production:
 
 volumes:
-  postgres-data-production:
+  mysql-data-production:
   laravel-storage-production:
   laravel-public-assets:

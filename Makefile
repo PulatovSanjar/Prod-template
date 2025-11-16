@@ -2,6 +2,9 @@ DC ?= docker compose
 PHP ?= php
 COMPOSER ?= composer
 
+build:
+	$(DC) -f docker-compose.dev.yml up -d --build
+
 up:        ## start stack
 	$(DC) up -d
 
