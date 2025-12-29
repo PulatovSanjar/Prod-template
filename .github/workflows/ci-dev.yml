@@ -66,12 +66,6 @@ jobs:
       - name: Start DB
         run: docker compose -f compose.dev.yaml up -d mysql redis
 
-      - name: Generate app key
-        run: |
-          docker run --rm \
-            ghcr.io/${{ needs.build.outputs.owner }}/${{ env.IMAGE }}:${{ env.TAG }} \
-            php artisan key:generate
-
       - name: PHPUnit
         run: |
           docker run --rm \
