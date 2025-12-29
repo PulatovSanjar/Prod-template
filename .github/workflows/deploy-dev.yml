@@ -30,9 +30,16 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - uses: docker/setup-buildx-action@v3
-      - name: Set lowercase image name
-        run: echo "IMAGE_PHP=ghcr.io/$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')/prod-template-php-fpm" >> $GITHUB_ENV
+      - name: Build and push PHP-FPM image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/common/php-fpm/Dockerfile
+          target: production
+          push: true
+          tags: |
+            ${{ env.IMAGE_PHP }}:${{ github.sha }}
+            ${{ env.IMAGE_PHP }}:prod-latest
 
       - name: Build & Push php-fpm
         uses: docker/build-push-action@v6

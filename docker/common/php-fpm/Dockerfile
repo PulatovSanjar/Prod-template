@@ -21,8 +21,17 @@ WORKDIR /var/www
 
 COPY . /var/www
 
+ENV APP_ENV=production
+ENV APP_DEBUG=false
+
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
-    && composer install --no-dev --optimize-autoloader --no-interaction --no-progress --prefer-dist
+    && composer install \
+        --no-dev \
+        --prefer-dist \
+        --no-interaction \
+        --no-progress \
+        --optimize-autoloader \
+        --no-scripts
 
 
 # Stage 2: Production environment
