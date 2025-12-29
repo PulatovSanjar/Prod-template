@@ -1,9 +1,5 @@
-DC ?= docker compose -f docker-compose.dev.yml
+DC ?= docker compose -f compose.dev.yaml
 PHP ?= php-fpm
-COMPOSER ?= php-fpm
-
-build:
-	$(DC) up -d --build
 
 up:        ## start stack
 	$(DC) up -d
@@ -12,10 +8,10 @@ down:      ## stop & remove containers
 	$(DC) down --remove-orphans
 
 composer-install:
-	$(DC) run --rm $(COMPOSER) composer install --prefer-dist --no-interaction
+	$(DC) run --rm $(PHP) composer install
 
 composer-update:
-	$(DC) run --rm $(COMPOSER) composer update --prefer-dist --no-interaction
+	$(DC) run --rm $(PHP) composer update
 
 restart:   ## restart stack
 	$(DC) down --remove-orphans
@@ -36,3 +32,14 @@ fix:
 
 refresh:
 	$(DC) exec $(PHP) php artisan migrate:fresh --seed
+
+clear: ## clear all laravel caches
+	$(DC) exec $(PHP) php artisan cache:clear
+	$(DC) exec $(PHP) php artisan config:clear
+	$(DC) exec $(PHP) php artisan route:clear
+	$(DC) exec $(PHP) php artisan view:clear
+
+init:      ## init project: .env, composer install, npm install
+	@test -f .env || cp .env.example .env
+	$(MAKE) composer-install
+	npm install

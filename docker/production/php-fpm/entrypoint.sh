@@ -1,33 +1,24 @@
 #!/bin/sh
 set -e
 
+# Ensure dirs exist
+mkdir -p /var/www/storage /var/www/bootstrap/cache
+
 # Initialize storage directory if empty
-# -----------------------------------------------------------
-# If the storage directory is empty, copy the initial contents
-# and set the correct permissions.
-# -----------------------------------------------------------
-if [ ! "$(ls -A /var/www/storage)" ]; then
+if [ ! "$(ls -A /var/www/storage 2>/dev/null)" ]; then
   echo "Initializing storage directory..."
   cp -R /var/www/storage-init/. /var/www/storage
-  chown -R www-data:www-data /var/www/storage
 fi
 
-# Remove storage-init directory
-rm -rf /var/www/storage-init
+# Remove storage-init directory (optional cleanup)
+rm -rf /var/www/storage-init || true
 
-# Run Laravel migrations
-# -----------------------------------------------------------
-# Ensure the database schema is up to date.
-# -----------------------------------------------------------
-php artisan migrate --force
+# Fix permissions only for writable dirs
+chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache || true
 
-# Clear and cache configurations
-# -----------------------------------------------------------
-# Improves performance by caching config and routes.
-# -----------------------------------------------------------
-php artisan config:cache
-php artisan route:cache
-php artisan view:clear
+# IMPORTANT:
+# - Do NOT run migrations here
+# - Do NOT cache configs/routes here
+# These should be executed as part of deployment steps.
 
-# Run the default command
 exec "$@"
