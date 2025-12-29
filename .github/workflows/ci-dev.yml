@@ -105,11 +105,12 @@ jobs:
           cp .env.example .env
           docker compose -f compose.dev.yaml up -d mysql redis
 
-      # 🔴 КРИТИЧЕСКИ ВАЖНО — без этого vendor/ не существует
       - name: Composer install
         run: |
-          docker compose -f compose.dev.yaml run --rm workspace \
+          docker compose -f compose.dev.yaml run --rm workspace sh -c "
+            git config --global --add safe.directory /var/www &&
             composer install --no-interaction --prefer-dist
+          "
 
       - name: App key
         run: |
