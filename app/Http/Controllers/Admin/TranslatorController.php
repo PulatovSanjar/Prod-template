@@ -3,14 +3,14 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\AdminController;
 use App\Models\Translator;
-use Illuminate\Http\Request;
 use App\Services\TranslatorService;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Contracts\View\Factory;
-use App\Http\Controllers\AdminController;
-use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Http\Request;
 
 class TranslatorController extends AdminController
 {

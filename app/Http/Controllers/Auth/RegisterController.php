@@ -4,11 +4,11 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Auth;
 
 use App\DTOs\RegisterUserDTO;
-use App\Services\RegisterService;
-use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Requests\Auth\VerifyEmailRequest;
+use App\Services\RegisterService;
+use Illuminate\Http\JsonResponse;
 
 class RegisterController extends Controller
 {

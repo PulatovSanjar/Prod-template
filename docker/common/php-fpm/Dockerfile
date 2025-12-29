@@ -7,7 +7,7 @@ ENV TZ=Europe/Riga
 # Install system dependencies and PHP extensions required for Laravel + MySQL + Redis
 RUN apt-get update && apt-get install -y --no-install-recommends \
     tzdata \
-    curl unzip \
+    curl unzip git \
     libonig-dev libssl-dev libxml2-dev libcurl4-openssl-dev \
     libicu-dev libzip-dev \
     $PHPIZE_DEPS \
@@ -21,17 +21,8 @@ WORKDIR /var/www
 
 COPY . /var/www
 
-ENV APP_ENV=production
-ENV APP_DEBUG=false
-
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
-    && composer install \
-        --no-dev \
-        --prefer-dist \
-        --no-interaction \
-        --no-progress \
-        --optimize-autoloader \
-        --no-scripts
+    && composer install --no-dev --optimize-autoloader --no-interaction --no-progress --prefer-dist
 
 
 # Stage 2: Production environment

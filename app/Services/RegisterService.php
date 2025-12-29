@@ -3,11 +3,11 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Models\Role;
-use App\Models\User;
 use App\Contracts\DTOContract;
 use App\Exceptions\RoleNotFound;
 use App\Jobs\SendEmailVerificationJob;
+use App\Models\Role;
+use App\Models\User;
 
 class RegisterService
 {

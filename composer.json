@@ -6,6 +6,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.3",
+        "ext-pdo": "*",
         "astrotomic/laravel-translatable": "^11.10",
         "bensampo/laravel-enum": "^6.12",
         "doctrine/dbal": "^3.6",
@@ -15,21 +16,23 @@
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.7",
         "livewire/livewire": "^3.0",
+        "predis/predis": "^3.3",
         "rappasoft/laravel-livewire-tables": "^3.0",
+        "sentry/sentry-laravel": "^4.20",
+        "spatie/laravel-data": "^4.15",
         "tymon/jwt-auth": "^2.0",
-        "yoeunes/toastr": "^3.1",
-        "ext-pdo": "*"
+        "yoeunes/toastr": "^3.1"
     },
 
     "require-dev": {
         "fakerphp/faker": "^1.9.1",
-        "friendsofphp/php-cs-fixer": "^3",
+        "friendsofphp/php-cs-fixer": "^3.89",
         "laravel/pint": "^1.0",
         "laravel/sail": "^1.0.1",
         "mockery/mockery": "^1.4.4",
         "nunomaduro/collision": "^8.8",
         "nunomaduro/larastan": "^3",
-        "phpstan/phpstan": "^2",
+        "phpstan/phpstan": "^2.1",
         "phpunit/phpunit": "^11.5.15",
         "spatie/laravel-ignition": "^2.0"
     },
@@ -40,13 +43,16 @@
             "Database\\Seeders\\": "database/seeders/"
         },
         "files": [
-            "app/Classes/helpers.php"
+            "app/Services/helpers.php"
         ]
     },
     "autoload-dev": {
         "psr-4": {
             "Tests\\": "tests/"
-        }
+        },
+        "files": [
+            "app/Services/helpers.php"
+        ]
     },
     "scripts": {
         "post-autoload-dump": [

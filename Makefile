@@ -1,5 +1,6 @@
 DC ?= docker compose -f compose.dev.yaml
 PHP ?= php-fpm
+WORKSPACE ?= workspace
 
 up:        ## start stack
 	$(DC) up -d
@@ -8,8 +9,7 @@ down:      ## stop & remove containers
 	$(DC) down --remove-orphans
 
 composer-install:
-	$(DC) run --rm $(PHP) composer install
-
+	$(DC) run --rm $(WORKSPACE) composer install
 composer-update:
 	$(DC) run --rm $(PHP) composer update
 
