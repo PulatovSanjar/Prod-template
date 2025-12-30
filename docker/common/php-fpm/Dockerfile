@@ -13,12 +13,14 @@ RUN apt-get update && apt-get install -y \
 RUN curl -sS https://getcomposer.org/installer | php \
     -- --install-dir=/usr/local/bin --filename=composer
 
+COPY composer.json composer.lock ./
 COPY . .
 
 # ===============================
 # Stage 2 — prod deps (NO dev)
 # ===============================
 FROM base AS prod-deps
+
 RUN composer install \
     --no-dev \
     --prefer-dist \
@@ -29,6 +31,7 @@ RUN composer install \
 # Stage 3 — ci deps (WITH dev)
 # ===============================
 FROM base AS ci-deps
+
 RUN composer install \
     --prefer-dist \
     --no-interaction
@@ -53,11 +56,12 @@ USER www-data
 CMD ["php-fpm"]
 
 # ===============================
-# Stage 5 — CI image
+# Stage 5 — CI image (FOR TESTS)
 # ===============================
 FROM php:8.4-cli AS ci
 
 WORKDIR /var/www
+
 COPY --from=ci-deps /var/www /var/www
 
 CMD ["php", "-v"]
