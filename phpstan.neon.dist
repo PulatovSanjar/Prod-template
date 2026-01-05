@@ -1,17 +1,20 @@
 includes:
-    - /app/vendor/nunomaduro/larastan/extension.neon
+  - vendor/nunomaduro/larastan/extension.neon
 
 parameters:
-    excludePaths:
-       - *Enum.php
     paths:
-        - /app/app
-        - /app/config
-        - /app/database
-        - /app/routes
+        - app
+        - config
+        - database
+        - routes
+
+    excludePaths:
+        - *Enum.php
 
     level: 8
+
     ignoreErrors:
         - identifier: missingType.generics
         - identifier: missingType.iterableValue
+
     tmpDir: /tmp/phpstan
