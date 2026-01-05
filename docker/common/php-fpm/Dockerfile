@@ -114,56 +114,49 @@ EXPOSE 9000
 CMD ["php-fpm"]
 
 # ============================================
-# CI STAGE - Optimized for testing
+# CI STAGE - For testing in CI/CD pipelines
 # ============================================
 FROM builder AS ci
 
 WORKDIR /var/www/html
 
-# The builder stage already has production dependencies
-# We only need to ADD dev dependencies, not reinstall everything
+# IMPORTANT: copy FULL project FIRST (including phpunit.xml)
+COPY . .
 
-# Install dev dependencies on top of existing vendor
+# Remove production vendor installed in builder
+RUN rm -rf vendor
+
+# Install ALL dependencies including dev (phpunit, etc.)
 RUN composer install \
     --prefer-dist \
-    --no-interaction \
-    --optimize-autoloader \
-    --no-scripts
+    --no-interaction
 
-# Copy application source
-COPY --chown=www-data:www-data . .
-
-# Run Composer scripts and generate optimized autoloader
+# Generate autoloader with dev dependencies
 RUN composer dump-autoload --optimize
 
-# Create necessary directories for tests with proper permissions
+# Create necessary directories for tests
 RUN mkdir -p \
     storage/framework/cache \
     storage/framework/sessions \
     storage/framework/views \
-    storage/framework/testing \
     storage/logs \
     bootstrap/cache && \
     chmod -R 777 storage bootstrap/cache
 
-# Configure PHP for CI
+# Configure PHP for testing
 RUN cp "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini" && \
     { \
-        echo 'memory_limit=1G'; \
+        echo 'memory_limit=512M'; \
         echo 'error_reporting=E_ALL'; \
         echo 'display_errors=On'; \
         echo 'log_errors=On'; \
-        echo 'max_execution_time=300'; \
     } > "$PHP_INI_DIR/conf.d/ci.ini"
-
-# Create empty .env for cases where it's needed
-RUN touch .env.testing && \
-    echo "APP_ENV=testing" > .env.testing && \
-    echo "APP_KEY=" >> .env.testing
 
 USER root
 
-CMD ["php", "-v"]
+# Default command for CI
+CMD ["./vendor/bin/phpunit"]
+
 # ============================================
 # DEVELOPMENT STAGE - Local development
 # ============================================
