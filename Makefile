@@ -1,45 +1,70 @@
-DC ?= docker compose -f compose.dev.yaml
-PHP ?= php-fpm
-WORKSPACE ?= workspace
+.PHONY: help
 
-up:        ## start stack
-	$(DC) up -d
+help: ## Show this help message
+	@echo 'Usage: make [target]'
+	@echo ''
+	@echo 'Available targets:'
+	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  %-20s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
-down:      ## stop & remove containers
-	$(DC) down --remove-orphans
+# ============================================
+# DEVELOPMENT COMMANDS
+# ============================================
 
-composer-install:
-	$(DC) run --rm $(WORKSPACE) composer install
-composer-update:
-	$(DC) run --rm $(PHP) composer update
+dev-build: ## Build development containers
+	docker compose -f compose.dev.yaml build --no-cache
 
-restart:   ## restart stack
-	$(DC) down --remove-orphans
-	$(DC) up -d
+dev-up: ## Start development environment
+	docker compose -f compose.dev.yaml up -d
 
-laravel:   ## run artisan: make laravel name="optimize:clear"
-	$(DC) exec $(PHP) php artisan $(name)
+dev-down: ## Stop development environment
+	docker compose -f compose.dev.yaml down
 
-cs-fix:
-	$(DC) run --rm $(PHP) ./vendor/bin/php-cs-fixer fix
+dev-logs: ## Show development logs
+	docker compose -f compose.dev.yaml logs -f
 
-analyze:
-	$(DC) run --rm $(PHP) ./vendor/bin/phpstan analyse --memory-limit=-1
+dev-ps: ## Show development container status
+	docker compose -f compose.dev.yaml ps
 
-fix:
-	$(DC) run --rm $(PHP) ./vendor/bin/php-cs-fixer fix
-	$(DC) run --rm $(PHP) ./vendor/bin/phpstan analyse --memory-limit=-1
+dev-composer-install: ## Install Composer dependencies in dev
+	docker compose -f compose.dev.yaml exec php-fpm composer install
 
-refresh:
-	$(DC) exec $(PHP) php artisan migrate:fresh --seed
+dev-npm-install: ## Install npm dependencies in dev
+	docker run --rm -v $(PWD):/app -w /app node:22-alpine npm install
 
-clear: ## clear all laravel caches
-	$(DC) exec $(PHP) php artisan cache:clear
-	$(DC) exec $(PHP) php artisan config:clear
-	$(DC) exec $(PHP) php artisan route:clear
-	$(DC) exec $(PHP) php artisan view:clear
+dev-npm-build: ## Build Vite assets in dev
+	docker run --rm -v $(PWD):/app -w /app node:22-alpine npm run builddev-artisan: ## Run artisan command (usage: make dev-artisan cmd="migrate")
+	docker compose -f compose.dev.yaml exec php-fpm php artisan $(cmd)dev-test: ## Run PHPUnit tests
+	docker compose -f compose.dev.yaml exec php-fpm vendor/bin/phpunitdev-phpstan: ## Run PHPStan analysis
+	docker compose -f compose.dev.yaml exec php-fpm vendor/bin/phpstan analysedev-shell: ## Open shell in PHP container
+	docker compose -f compose.dev.yaml exec php-fpm shdev-mysql: ## Open MySQL client
+	docker compose -f compose.dev.yaml exec mysql mysql -u laravel -psecret laraveldev-fresh: ## Fresh install (down, build, up, install deps, generate key)
+	make dev-down
+	make dev-build
+	make dev-up
+	sleep 5
+	make dev-composer-install
+	make dev-npm-install
+	make dev-npm-build
+	docker compose -f compose.dev.yaml exec php-fpm php artisan key:generate
+	docker compose -f compose.dev.yaml exec php-fpm php artisan migrate --seed============================================
 
-init:      ## init project: .env, composer install, npm install
-	@test -f .env || cp .env.example .env
-	$(MAKE) composer-install
-	npm install
+#PRODUCTION COMMANDS
+#============================================
+prod-build: ## Build production images locally
+	docker build -f docker/common/php-fpm/Dockerfile --target production -t laravel-php:local .
+	docker build -f docker/production/nginx/Dockerfile -t laravel-nginx:local .prod-up: ## Start production environment (requires pre-built images)
+	docker compose -f compose.prod.yaml up -dprod-down: ## Stop production environment
+	docker compose -f compose.prod.yaml downprod-logs: ## Show production logs
+	docker compose -f compose.prod.yaml logs -fprod-ps: ## Show production container status
+	docker compose -f compose.prod.yaml psprod-migrate: ## Run migrations in production
+	docker compose -f compose.prod.yaml exec php-fpm php artisan migrate --forceprod-shell: ## Open shell in production PHP container
+	docker compose -f compose.prod.yaml exec php-fpm shprod-pull: ## Pull production images from registry
+	docker compose -f compose.prod.yaml pull
+
+#============================================
+#UTILITY COMMANDS
+#============================================
+clean: ## Clean up containers, volumes, and images
+	docker compose -f compose.dev.yaml down -v
+	docker compose -f compose.prod.yaml down -vclean-all: clean ## Clean everything including images
+	docker system prune -af --volumes

@@ -1,67 +1,132 @@
-# ===============================
-# Stage 1 — base
-# ===============================
-FROM php:8.4-cli AS base
+# syntax=docker/dockerfile:1.4
 
-WORKDIR /var/www
+############################################
+# BUILDER STAGE
+############################################
+FROM php:8.4-fpm-alpine AS builder
 
-RUN apt-get update && apt-get install -y \
-    git unzip curl libzip-dev libicu-dev \
-    && docker-php-ext-install intl zip bcmath pdo_mysql \
-    && rm -rf /var/lib/apt/lists/*
+# Composer arguments
+ARG COMPOSER_INSTALL_ARGS="--no-dev --optimize-autoloader --no-interaction"
+ARG COMPOSER_DUMP_ARGS="--optimize --no-interaction"
 
-RUN curl -sS https://getcomposer.org/installer | php \
-    -- --install-dir=/usr/local/bin --filename=composer
+# System dependencies
+RUN apk add --no-cache \
+    git \
+    curl \
+    libpng-dev \
+    libxml2-dev \
+    zip \
+    unzip \
+    libzip-dev \
+    oniguruma-dev \
+    icu-dev \
+    postgresql-dev \
+    linux-headers \
+    $PHPIZE_DEPS
 
+# PHP extensions
+RUN docker-php-ext-install \
+    pdo_mysql \
+    pdo_pgsql \
+    mbstring \
+    exif \
+    pcntl \
+    bcmath \
+    gd \
+    zip \
+    intl \
+    opcache
+
+# Redis extension
+RUN pecl install redis \
+    && docker-php-ext-enable redis
+
+# Composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+WORKDIR /var/www/html
+
+# Install dependencies (cached layer)
 COPY composer.json composer.lock ./
+RUN composer install ${COMPOSER_INSTALL_ARGS} --no-scripts --no-autoloader
+
+# Copy application
 COPY . .
 
-# ===============================
-# Stage 2 — prod deps (NO dev)
-# ===============================
-FROM base AS prod-deps
+# Generate optimized autoloader
+RUN composer dump-autoload ${COMPOSER_DUMP_ARGS}
 
-RUN composer install \
-    --no-dev \
-    --prefer-dist \
-    --no-interaction \
-    --optimize-autoloader
+############################################
+# PRODUCTION STAGE
+############################################
+FROM php:8.4-fpm-alpine AS production
 
-# ===============================
-# Stage 3 — ci deps (WITH dev)
-# ===============================
-FROM base AS ci-deps
+# Runtime dependencies only
+RUN apk add --no-cache \
+    libpng \
+    libxml2 \
+    libzip \
+    oniguruma \
+    icu-libs \
+    postgresql-libs
 
-RUN composer install \
-    --prefer-dist \
-    --no-interaction
+# Copy PHP extensions & config
+COPY --from=builder /usr/local/lib/php/extensions /usr/local/lib/php/extensions
+COPY --from=builder /usr/local/etc/php/conf.d /usr/local/etc/php/conf.d
 
-# ===============================
-# Stage 4 — production image
-# ===============================
-FROM php:8.4-fpm AS production
+# PHP production config
+RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
+    && echo "opcache.enable=1" >> "$PHP_INI_DIR/conf.d/opcache.ini" \
+    && echo "opcache.memory_consumption=256" >> "$PHP_INI_DIR/conf.d/opcache.ini" \
+    && echo "opcache.max_accelerated_files=20000" >> "$PHP_INI_DIR/conf.d/opcache.ini" \
+    && echo "opcache.validate_timestamps=0" >> "$PHP_INI_DIR/conf.d/opcache.ini"
 
-WORKDIR /var/www
+WORKDIR /var/www/html
 
-RUN apt-get update && apt-get install -y \
-    libicu-dev libzip-dev \
-    && docker-php-ext-install intl zip bcmath pdo_mysql \
-    && rm -rf /var/lib/apt/lists/*
+# Copy app from builder
+COPY --from=builder --chown=www-data:www-data /var/www/html /var/www/html
 
-COPY --from=prod-deps /var/www /var/www
+# Permissions
+RUN chown -R www-data:www-data storage bootstrap/cache \
+    && chmod -R 775 storage bootstrap/cache
 
-RUN chown -R www-data:www-data storage bootstrap/cache
 USER www-data
 
+EXPOSE 9000
 CMD ["php-fpm"]
 
-# ===============================
-# Stage 5 — CI image (FOR TESTS)
-# ===============================
-FROM php:8.4-cli AS ci
+############################################
+# DEVELOPMENT STAGE
+############################################
+FROM builder AS development
 
-WORKDIR /var/www
+# Xdebug (optional)
+RUN pecl install xdebug \
+    && docker-php-ext-enable xdebug || true
 
-COPY --from=ci-deps /var/www /var/www
+# PHP dev config
+RUN cp "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini" \
+    && echo "error_reporting=E_ALL" >> "$PHP_INI_DIR/php.ini" \
+    && echo "display_errors=On" >> "$PHP_INI_DIR/php.ini" \
+    && echo "xdebug.mode=debug,coverage" >> "$PHP_INI_DIR/conf.d/docker-php-ext-xdebug.ini" \
+    && echo "xdebug.client_host=host.docker.internal" >> "$PHP_INI_DIR/conf.d/docker-php-ext-xdebug.ini" \
+    && echo "xdebug.start_with_request=yes" >> "$PHP_INI_DIR/conf.d/docker-php-ext-xdebug.ini"
 
-CMD ["php", "-v"]
+WORKDIR /var/www/html
+
+# Dev dependencies
+RUN composer install --no-interaction
+
+# Writable dirs
+RUN mkdir -p \
+    storage/framework/cache \
+    storage/framework/sessions \
+    storage/framework/views \
+    storage/logs \
+    bootstrap/cache \
+    && chmod -R 777 storage bootstrap/cache
+
+USER www-data
+
+EXPOSE 9000
+CMD ["php-fpm"]

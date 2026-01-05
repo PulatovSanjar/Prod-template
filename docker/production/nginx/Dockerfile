@@ -1,29 +1,46 @@
-# Stage 1: Build assets (stable Node image)
-FROM node:20-alpine AS builder
+# syntax=docker/dockerfile:1.4
 
-WORKDIR /var/www
+# ============================================
+# NODE BUILDER STAGE - Build Vite assets
+# ============================================
+FROM node:22-alpine AS node-builder
 
-# Copy only package files first for better caching
-COPY package.json package-lock.json* ./
-RUN npm ci || npm install
+WORKDIR /build
 
-# Copy the rest of the app (needed for Vite build)
-COPY . /var/www
+# Copy package files for caching
+COPY package*.json ./
 
-# Build Vite assets
+# Install dependencies
+RUN npm ci --only=production
+
+# Copy source files needed for build
+COPY vite.config.js ./
+COPY resources/ ./resources/
+COPY public/ ./public/
+
+# Build assets
 RUN npm run build
 
-
-# Stage 2: Nginx production image
+# ============================================
+# NGINX STAGE - Serve application
+# ============================================
 FROM nginx:1.27-alpine
 
-# Custom Nginx config
-COPY ./docker/production/nginx/nginx.conf /etc/nginx/nginx.conf
+# Copy custom nginx configuration
+COPY docker/production/nginx/nginx.conf /etc/nginx/nginx.conf
 
-# Copy public folder including built assets
-COPY --from=builder /var/www/public /var/www/public
+# Create application directory
+RUN mkdir -p /var/www/html/public
 
-WORKDIR /var/www/public
+# Copy Laravel public directory (static assets, index.php)
+COPY public/ /var/www/html/public/
+
+# Copy built Vite assets from node builder
+COPY --from=node-builder /build/public/build /var/www/html/public/build
+
+# Set proper permissions
+RUN chown -R nginx:nginx /var/www/html
 
 EXPOSE 80
+
 CMD ["nginx", "-g", "daemon off;"]

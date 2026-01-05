@@ -1,107 +1,81 @@
 services:
-  web:
-    image: ${IMAGE_WEB}:${TAG}
-    restart: unless-stopped
-    volumes:
-      - laravel-storage-production:/var/www/storage:ro
-      - laravel-public-assets:/var/www/public/build:ro
-    networks:
-      - laravel-production
-    ports:
-      - "${NGINX_PORT:-80}:80"
-    depends_on:
-      php-fpm:
-        condition: service_healthy
-
   php-fpm:
-    image: ${IMAGE_PHP}:${TAG}
-    restart: unless-stopped
+    image: ghcr.io/${GITHUB_REPOSITORY:-PulatovSanjar/Prod-template}-php:${IMAGE_TAG:-latest}
+    container_name: laravel_prod_php
     volumes:
-      - laravel-public-assets:/var/www/public/build
-      - laravel-storage-production:/var/www/storage
+      - storage-data:/var/www/html/storage
+      - cache-data:/var/www/html/bootstrap/cache
     env_file:
-      - .env
-    networks:
-      - laravel-production
-    healthcheck:
-      test: ["CMD-SHELL", "php-fpm-healthcheck || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
+      - .env.prod
     depends_on:
       mysql:
         condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - laravel_prod
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "php-fpm", "-t"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  nginx:
+    image: ghcr.io/${GITHUB_REPOSITORY:-PulatovSanjar/Prod-template}-nginx:${IMAGE_TAG:-latest}
+    container_name: laravel_prod_nginx
+    ports:
+      - "${APP_PORT:-80}:80"
+    depends_on:
+      - php-fpm
+    networks:
+      - laravel_prod
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/up"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   mysql:
-    image: mysql:8.4
-    restart: unless-stopped
+    image: mysql:8.0
+    container_name: laravel_prod_mysql
     environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
       MYSQL_DATABASE: ${DB_DATABASE}
       MYSQL_USER: ${DB_USERNAME}
       MYSQL_PASSWORD: ${DB_PASSWORD}
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
-      TZ: Europe/Riga
-    command: >
-      --character-set-server=utf8mb4
-      --collation-server=utf8mb4_unicode_ci
-      --skip-name-resolve
     volumes:
-      - mysql-data-production:/var/lib/mysql
+      - mysql-data:/var/lib/mysql
     networks:
-      - laravel-production
+      - laravel_prod
+    restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_PASSWORD}"]
       interval: 10s
       timeout: 5s
-      retries: 10
+      retries: 5
 
   redis:
-    image: redis:alpine
-    restart: unless-stopped
+    image: redis:7-alpine
+    container_name: laravel_prod_redis
+    volumes:
+      - redis-data:/data
     networks:
-      - laravel-production
+      - laravel_prod
+    restart: unless-stopped
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
-      retries: 3
-
-  queue:
-    image: ${IMAGE_PHP}:${TAG}
-    restart: unless-stopped
-    env_file:
-      - .env
-    networks:
-      - laravel-production
-    depends_on:
-      mysql:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    command: [ "php", "artisan", "queue:work", "--sleep=3", "--tries=3", "--timeout=90" ]
-    volumes:
-      - laravel-storage-production:/var/www/storage
-
-  scheduler:
-    image: ${IMAGE_PHP}:${TAG}
-    restart: unless-stopped
-    env_file:
-      - .env
-    networks:
-      - laravel-production
-    depends_on:
-      mysql:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    command: [ "php", "artisan", "schedule:work" ]
-    volumes:
-      - laravel-storage-production:/var/www/storage
-
-networks:
-  laravel-production:
+      retries: 5
 
 volumes:
-  mysql-data-production:
-  laravel-storage-production:
-  laravel-public-assets:
+  mysql-data:
+  redis-data:
+  storage-data:
+  cache-data:
+
+networks:
+  laravel_prod:
+    driver: bridge
