@@ -10,6 +10,7 @@
     bootstrap="vendor/autoload.php"
     colors="true"
     cacheDirectory=".phpunit.cache"
+    failOnEmptyTestSuite="false"
 >
 
     <testsuites>

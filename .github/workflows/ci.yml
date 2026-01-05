@@ -78,7 +78,7 @@ jobs:
         run: docker compose -f compose.dev.yaml up -d mysql redis
 
       - name: PHPUnit
-        run: docker run --rm app:ci ./vendor/bin/phpunit -c phpunit.xml
+        run: docker run --rm app:ci ./vendor/bin/phpunit
 
       - name: PHPStan
         run: docker run --rm app:ci ./vendor/bin/phpstan analyse --memory-limit=-1

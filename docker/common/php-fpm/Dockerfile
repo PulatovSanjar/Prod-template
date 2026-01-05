@@ -118,22 +118,18 @@ CMD ["php-fpm"]
 # ============================================
 FROM builder AS ci
 
-# CI stage extends builder and adds dev dependencies
-# This stage is optimized for running tests and static analysis
-
 WORKDIR /var/www/html
 
-# Remove production vendor and reinstall with dev dependencies
+# IMPORTANT: copy FULL project FIRST (including phpunit.xml)
+COPY . .
+
+# Remove production vendor installed in builder
 RUN rm -rf vendor
 
-# Install ALL dependencies including dev
+# Install ALL dependencies including dev (phpunit, etc.)
 RUN composer install \
     --prefer-dist \
-    --no-interaction \
-    --optimize-autoloader
-
-# Copy application source (may have changed since builder)
-COPY . .
+    --no-interaction
 
 # Generate autoloader with dev dependencies
 RUN composer dump-autoload --optimize
@@ -156,11 +152,10 @@ RUN cp "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini" && \
         echo 'log_errors=On'; \
     } > "$PHP_INI_DIR/conf.d/ci.ini"
 
-# Stay as root for CI flexibility
 USER root
 
-# Default command for CI (can be overridden)
-CMD ["php", "-v"]
+# Default command for CI
+CMD ["./vendor/bin/phpunit"]
 
 # ============================================
 # DEVELOPMENT STAGE - Local development
