@@ -6,7 +6,7 @@ services:
       target: development
       args:
         COMPOSER_ARGS: "--optimize-autoloader --no-interaction"
-    container_name: laravel_dev_php
+    container_name: php
     volumes:
       - .:/var/www/html
       - php-vendor:/var/www/html/vendor
@@ -31,7 +31,7 @@ services:
     build:
       context: .
       dockerfile: docker/development/nginx/Dockerfile
-    container_name: laravel_dev_nginx
+    container_name: nginx
     ports:
       - "${APP_PORT:-8000}:80"
     volumes:
@@ -47,8 +47,8 @@ services:
       retries: 3
 
   mysql:
-    image: mysql:8.0
-    container_name: laravel_dev_mysql
+    image: mysql:8.4
+    container_name: mysql
     ports:
       - "${DB_PORT:-3306}:3306"
     environment:
@@ -68,7 +68,7 @@ services:
 
   redis:
     image: redis:7-alpine
-    container_name: laravel_dev_redis
+    container_name: redis
     ports:
       - "${REDIS_PORT:-6379}:6379"
     volumes:
