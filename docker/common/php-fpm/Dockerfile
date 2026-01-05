@@ -1,15 +1,11 @@
 # syntax=docker/dockerfile:1.4
 
-############################################
-# BUILDER STAGE
-############################################
+# ============================================
+# BUILDER STAGE - Base for all other stages
+# ============================================
 FROM php:8.4-fpm-alpine AS builder
 
-# Composer arguments
-ARG COMPOSER_INSTALL_ARGS="--no-dev --optimize-autoloader --no-interaction"
-ARG COMPOSER_DUMP_ARGS="--optimize --no-interaction"
-
-# System dependencies
+# Install system dependencies
 RUN apk add --no-cache \
     git \
     curl \
@@ -24,7 +20,7 @@ RUN apk add --no-cache \
     linux-headers \
     $PHPIZE_DEPS
 
-# PHP extensions
+# Install PHP extensions
 RUN docker-php-ext-install \
     pdo_mysql \
     pdo_pgsql \
@@ -37,31 +33,43 @@ RUN docker-php-ext-install \
     intl \
     opcache
 
-# Redis extension
-RUN pecl install redis \
-    && docker-php-ext-enable redis
+# Install Redis extension via PECL
+RUN pecl install redis-6.1.0 && \
+    docker-php-ext-enable redis
 
-# Composer
+# Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
+# Set working directory
 WORKDIR /var/www/html
 
-# Install dependencies (cached layer)
+# Copy composer files first (for layer caching)
 COPY composer.json composer.lock ./
-RUN composer install ${COMPOSER_INSTALL_ARGS} --no-scripts --no-autoloader
 
-# Copy application
+# Install production dependencies only (no autoload yet)
+RUN composer install \
+    --no-dev \
+    --no-scripts \
+    --no-autoloader \
+    --prefer-dist \
+    --no-interaction \
+    --optimize-autoloader
+
+# Copy application source
 COPY . .
 
 # Generate optimized autoloader
-RUN composer dump-autoload ${COMPOSER_DUMP_ARGS}
+RUN composer dump-autoload \
+    --no-dev \
+    --optimize \
+    --classmap-authoritative
 
-############################################
-# PRODUCTION STAGE
-############################################
+# ============================================
+# PRODUCTION STAGE - Runtime only
+# ============================================
 FROM php:8.4-fpm-alpine AS production
 
-# Runtime dependencies only
+# Install runtime dependencies only
 RUN apk add --no-cache \
     libpng \
     libxml2 \
@@ -70,63 +78,134 @@ RUN apk add --no-cache \
     icu-libs \
     postgresql-libs
 
-# Copy PHP extensions & config
-COPY --from=builder /usr/local/lib/php/extensions /usr/local/lib/php/extensions
-COPY --from=builder /usr/local/etc/php/conf.d /usr/local/etc/php/conf.d
+# Copy PHP extensions from builder
+COPY --from=builder /usr/local/lib/php/extensions/ /usr/local/lib/php/extensions/
+COPY --from=builder /usr/local/etc/php/conf.d/ /usr/local/etc/php/conf.d/
 
-# PHP production config
-RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
-    && echo "opcache.enable=1" >> "$PHP_INI_DIR/conf.d/opcache.ini" \
-    && echo "opcache.memory_consumption=256" >> "$PHP_INI_DIR/conf.d/opcache.ini" \
-    && echo "opcache.max_accelerated_files=20000" >> "$PHP_INI_DIR/conf.d/opcache.ini" \
-    && echo "opcache.validate_timestamps=0" >> "$PHP_INI_DIR/conf.d/opcache.ini"
+# Configure PHP for production
+RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" && \
+    { \
+        echo 'opcache.enable=1'; \
+        echo 'opcache.memory_consumption=256'; \
+        echo 'opcache.interned_strings_buffer=16'; \
+        echo 'opcache.max_accelerated_files=20000'; \
+        echo 'opcache.validate_timestamps=0'; \
+        echo 'opcache.save_comments=1'; \
+        echo 'opcache.fast_shutdown=1'; \
+    } > "$PHP_INI_DIR/conf.d/opcache.ini"
 
 WORKDIR /var/www/html
 
-# Copy app from builder
+# Copy application from builder (with vendor and optimized autoloader)
 COPY --from=builder --chown=www-data:www-data /var/www/html /var/www/html
 
-# Permissions
-RUN chown -R www-data:www-data storage bootstrap/cache \
-    && chmod -R 775 storage bootstrap/cache
+# Set proper permissions
+RUN chown -R www-data:www-data \
+    /var/www/html/storage \
+    /var/www/html/bootstrap/cache && \
+    chmod -R 775 \
+    /var/www/html/storage \
+    /var/www/html/bootstrap/cache
 
 USER www-data
 
 EXPOSE 9000
+
 CMD ["php-fpm"]
 
-############################################
-# DEVELOPMENT STAGE
-############################################
-FROM builder AS development
+# ============================================
+# CI STAGE - For testing in CI/CD pipelines
+# ============================================
+FROM builder AS ci
 
-# Xdebug (optional)
-RUN pecl install xdebug \
-    && docker-php-ext-enable xdebug || true
-
-# PHP dev config
-RUN cp "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini" \
-    && echo "error_reporting=E_ALL" >> "$PHP_INI_DIR/php.ini" \
-    && echo "display_errors=On" >> "$PHP_INI_DIR/php.ini" \
-    && echo "xdebug.mode=debug,coverage" >> "$PHP_INI_DIR/conf.d/docker-php-ext-xdebug.ini" \
-    && echo "xdebug.client_host=host.docker.internal" >> "$PHP_INI_DIR/conf.d/docker-php-ext-xdebug.ini" \
-    && echo "xdebug.start_with_request=yes" >> "$PHP_INI_DIR/conf.d/docker-php-ext-xdebug.ini"
+# CI stage extends builder and adds dev dependencies
+# This stage is optimized for running tests and static analysis
 
 WORKDIR /var/www/html
 
-# Dev dependencies
-RUN composer install --no-interaction
+# Remove production vendor and reinstall with dev dependencies
+RUN rm -rf vendor
 
-# Writable dirs
+# Install ALL dependencies including dev
+RUN composer install \
+    --prefer-dist \
+    --no-interaction \
+    --optimize-autoloader
+
+# Copy application source (may have changed since builder)
+COPY . .
+
+# Generate autoloader with dev dependencies
+RUN composer dump-autoload --optimize
+
+# Create necessary directories for tests
 RUN mkdir -p \
     storage/framework/cache \
     storage/framework/sessions \
     storage/framework/views \
     storage/logs \
-    bootstrap/cache \
-    && chmod -R 777 storage bootstrap/cache
+    bootstrap/cache && \
+    chmod -R 777 storage bootstrap/cache
+
+# Configure PHP for testing
+RUN cp "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini" && \
+    { \
+        echo 'memory_limit=512M'; \
+        echo 'error_reporting=E_ALL'; \
+        echo 'display_errors=On'; \
+        echo 'log_errors=On'; \
+    } > "$PHP_INI_DIR/conf.d/ci.ini"
+
+# Stay as root for CI flexibility
+USER root
+
+# Default command for CI (can be overridden)
+CMD ["php", "-v"]
+
+# ============================================
+# DEVELOPMENT STAGE - Local development
+# ============================================
+FROM builder AS development
+
+# Install Xdebug for local debugging
+RUN pecl install xdebug-3.4.0 && \
+    docker-php-ext-enable xdebug
+
+# Configure PHP for development
+RUN cp "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini" && \
+    { \
+        echo 'memory_limit=512M'; \
+        echo 'error_reporting=E_ALL'; \
+        echo 'display_errors=On'; \
+        echo 'log_errors=On'; \
+    } > "$PHP_INI_DIR/conf.d/dev.ini" && \
+    { \
+        echo 'xdebug.mode=debug,coverage'; \
+        echo 'xdebug.client_host=host.docker.internal'; \
+        echo 'xdebug.client_port=9003'; \
+        echo 'xdebug.start_with_request=yes'; \
+        echo 'xdebug.log=/tmp/xdebug.log'; \
+    } > "$PHP_INI_DIR/conf.d/xdebug.ini"
+
+WORKDIR /var/www/html
+
+# Install dev dependencies
+RUN composer install \
+    --prefer-dist \
+    --no-interaction \
+    --optimize-autoloader
+
+# Create writable directories
+RUN mkdir -p \
+    storage/framework/cache \
+    storage/framework/sessions \
+    storage/framework/views \
+    storage/logs \
+    bootstrap/cache && \
+    chmod -R 777 storage bootstrap/cache
 
 USER www-data
 
 EXPOSE 9000
+
 CMD ["php-fpm"]

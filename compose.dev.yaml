@@ -4,8 +4,6 @@ services:
       context: .
       dockerfile: docker/common/php-fpm/Dockerfile
       target: development
-      args:
-        COMPOSER_ARGS: "--optimize-autoloader --no-interaction"
     container_name: php
     volumes:
       - .:/var/www/html
@@ -13,7 +11,7 @@ services:
     environment:
       - XDEBUG_MODE=${XDEBUG_MODE:-off}
     env_file:
-      - .env.dev
+      - .env
     depends_on:
       mysql:
         condition: service_healthy
@@ -28,20 +26,19 @@ services:
       retries: 3
 
   nginx:
-    build:
-      context: .
-      dockerfile: docker/development/nginx/Dockerfile
+    image: nginx:1.27-alpine
     container_name: nginx
     ports:
       - "${APP_PORT:-8000}:80"
     volumes:
       - .:/var/www/html:ro
+      - ./docker/development/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
       - php-fpm
     networks:
       - laravel_dev
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/up"]
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -61,7 +58,7 @@ services:
     networks:
       - laravel_dev
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_PASSWORD:-secret}"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "--silent"]
       interval: 10s
       timeout: 5s
       retries: 5
