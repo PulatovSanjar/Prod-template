@@ -52,14 +52,29 @@ dev-npm-build: ## Build Vite assets in dev
 #============================================
 prod-build: ## Build production images locally
 	docker build -f docker/common/php-fpm/Dockerfile --target production -t laravel-php:local .
-	docker build -f docker/production/nginx/Dockerfile -t laravel-nginx:local .prod-up: ## Start production environment (requires pre-built images)
-	docker compose -f compose.prod.yaml up -dprod-down: ## Stop production environment
-	docker compose -f compose.prod.yaml downprod-logs: ## Show production logs
-	docker compose -f compose.prod.yaml logs -fprod-ps: ## Show production container status
-	docker compose -f compose.prod.yaml psprod-migrate: ## Run migrations in production
-	docker compose -f compose.prod.yaml exec php-fpm php artisan migrate --forceprod-shell: ## Open shell in production PHP container
-	docker compose -f compose.prod.yaml exec php-fpm shprod-pull: ## Pull production images from registry
+	docker build -f docker/production/nginx/Dockerfile -t laravel-nginx:local .
+
+prod-up: ## Start production environment (requires pre-built images)
+	docker compose -f compose.prod.yaml up -d
+
+prod-down: ## Stop production environment
+	docker compose -f compose.prod.yaml down
+
+prod-logs: ## Show production logs
+	docker compose -f compose.prod.yaml logs -f
+
+prod-ps: ## Show production container status
+	docker compose -f compose.prod.yaml ps
+
+prod-migrate: ## Run migrations in production
+	docker compose -f compose.prod.yaml exec php-fpm php artisan migrate --force
+
+prod-shell: ## Open shell in production PHP container
+	docker compose -f compose.prod.yaml exec php-fpm sh
+
+prod-pull: ## Pull production images from registry
 	docker compose -f compose.prod.yaml pull
+
 
 #============================================
 #UTILITY COMMANDS

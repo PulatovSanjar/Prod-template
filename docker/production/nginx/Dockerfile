@@ -11,7 +11,7 @@ WORKDIR /build
 COPY package*.json ./
 
 # Install dependencies
-RUN npm ci --only=production
+RUN npm ci
 
 # Copy source files needed for build
 COPY vite.config.js ./
