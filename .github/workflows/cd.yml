@@ -11,7 +11,7 @@ concurrency:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_PREFIX: magma-bank-service
+  IMAGE_PREFIX: prod-template
   TAG: ${{ github.sha }}
 
 jobs:
@@ -49,6 +49,8 @@ jobs:
           target: production
           push: true
           tags: ghcr.io/${{ steps.meta.outputs.owner }}/${{ env.IMAGE_PREFIX }}-php-fpm:${{ env.TAG }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Build web (nginx)
         uses: docker/build-push-action@v6
@@ -67,6 +69,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
       - uses: docker/setup-buildx-action@v3
 
       - name: Build CI image
@@ -77,15 +80,17 @@ jobs:
           target: ci
           load: true
           tags: app:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
-      - name: Start dependencies
+      - name: Start DB
         run: docker compose -f compose.dev.yaml up -d mysql redis
 
       - name: PHPUnit
-        run: docker compose -f compose.dev.yaml run --rm php-fpm ./vendor/bin/phpunit
-
+        run: docker compose -f compose.dev.yaml run --rm php-fpm ./vendor/bin/phpunit &
       - name: PHPStan
-        run: docker compose -f compose.dev.yaml run --rm php-fpm ./vendor/bin/phpstan analyse --memory-limit=-1
+        run: docker compose -f compose.dev.yaml run --rm php-fpm ./vendor/bin/phpstan analyse --memory-limit=-1 &
+      - run: wait
 
   # =========================
   # 3️⃣ MIGRATE

@@ -11,7 +11,7 @@ services:
     environment:
       - XDEBUG_MODE=${XDEBUG_MODE:-off}
     env_file:
-      - .env
+      - .env.dev
     depends_on:
       mysql:
         condition: service_healthy

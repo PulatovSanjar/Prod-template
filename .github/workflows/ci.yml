@@ -67,15 +67,17 @@ jobs:
           target: ci
           load: true
           tags: app:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Start DB
         run: docker compose -f compose.dev.yaml up -d mysql redis
 
       - name: PHPUnit
-        run: docker run --rm --network dev_default app:ci ./vendor/bin/phpunit
-
+        run: docker compose -f compose.dev.yaml run --rm php-fpm ./vendor/bin/phpunit &
       - name: PHPStan
-        run: docker run --rm app:ci ./vendor/bin/phpstan analyse --memory-limit=-1
+        run: docker compose -f compose.dev.yaml run --rm php-fpm ./vendor/bin/phpstan analyse --memory-limit=-1 &
+      - run: wait
 
   migrate:
     runs-on: ubuntu-latest
