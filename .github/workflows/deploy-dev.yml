@@ -38,12 +38,12 @@ jobs:
 
       - uses: docker/setup-buildx-action@v3
 
-      - name: Build php-fpm (production)
+      - name: Build php-fpm
         uses: docker/build-push-action@v6
         with:
           context: .
           file: docker/common/php-fpm/Dockerfile
-          target: production
+          target: development
           push: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
