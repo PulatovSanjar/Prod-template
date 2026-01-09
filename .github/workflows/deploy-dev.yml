@@ -1,4 +1,4 @@
-name: CI/CD (DEV)
+name: deploy dev
 
 on:
   push:
@@ -11,7 +11,7 @@ concurrency:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_PREFIX: magma-bank-service
+  IMAGE_PREFIX: prod-template
   TAG: ${{ github.sha }}
 
 jobs:
