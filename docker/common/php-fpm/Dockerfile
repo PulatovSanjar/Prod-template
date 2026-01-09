@@ -1,12 +1,14 @@
-# syntax=docker/dockerfile:1.4
 
 # ============================================
 # BUILDER STAGE - Base for all other stages
 # ============================================
 FROM php:8.4-fpm-alpine AS builder
 
+# Fix Alpine mirror to avoid DNS / integrity issues
+RUN sed -i 's|dl-cdn.alpinelinux.org|dl-2.alpinelinux.org|g' /etc/apk/repositories
+
 # Install system dependencies
-RUN apk add --no-cache \
+RUN apk update && apk add --no-cache \
     git \
     curl \
     libpng-dev \
@@ -167,7 +169,7 @@ RUN pecl install xdebug-3.4.0 && \
     docker-php-ext-enable xdebug
 
 # Configure PHP for development
-RUN cp "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini" && \
+RUN cp "$PHP_INI_DIR/php.ini-development" "$PHP_IN_DIR/php.ini" && \
     { \
         echo 'memory_limit=512M'; \
         echo 'error_reporting=E_ALL'; \
