@@ -87,8 +87,9 @@ jobs:
         run: docker compose -f compose.dev.yaml run --rm php-fpm ./vendor/bin/phpunit
 
       - name: PHPStan
-        run: docker compose -f compose.dev.yaml run --rm php-fpm \
-          sh -c "mkdir -p bootstrap/cache && ./vendor/bin/phpstan analyse --memory-limit=-1"
+        run: |
+          docker compose -f compose.dev.yaml run --rm php-fpm \
+            sh -c "mkdir -p bootstrap/cache && ./vendor/bin/phpstan analyse --memory-limit=-1"
 
   migrate:
     runs-on: ubuntu-latest
