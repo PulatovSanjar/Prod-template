@@ -83,6 +83,7 @@ volumes:
   mysql-data:
   redis-data:
   php-vendor:
+  phpstan-cache:
 
 networks:
   laravel_dev:
