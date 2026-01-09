@@ -70,15 +70,13 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Start DB
-        run: docker compose -f compose.dev.yaml up -d mysql redis
+        run: docker compose -f compose.ci.yaml up -d mysql redis
 
       - name: PHPUnit
-        run: docker compose -f compose.dev.yaml run --rm php-fpm ./vendor/bin/phpunit
+        run: docker compose -f compose.ci.yaml run --rm php-fpm ./vendor/bin/phpunit
 
       - name: PHPStan
-        run: |
-          docker compose -f compose.dev.yaml run --rm php-fpm \
-            sh -c "mkdir -p bootstrap/cache && ./vendor/bin/phpstan analyse --memory-limit=-1"
+        run: docker compose -f compose.ci.yaml run --rm php-fpm ./vendor/bin/phpstan analyse --memory-limit=-1
 
   migrate:
     runs-on: ubuntu-latest
