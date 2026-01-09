@@ -72,6 +72,11 @@ jobs:
       - name: Start DB
         run: docker compose -f compose.dev.yaml up -d mysql redis
 
+      - name: Prepare Laravel cache directories
+        run: |
+          docker compose -f compose.dev.yaml run --rm php-fpm \
+            sh -c "mkdir -p bootstrap/cache && chmod -R 775 bootstrap/cache"
+
       - name: PHPUnit
         run: docker compose -f compose.dev.yaml run --rm php-fpm ./vendor/bin/phpunit
 
