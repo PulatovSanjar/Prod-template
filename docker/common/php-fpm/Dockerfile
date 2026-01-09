@@ -169,7 +169,7 @@ RUN pecl install xdebug-3.4.0 && \
     docker-php-ext-enable xdebug
 
 # Configure PHP for development
-RUN cp "$PHP_INI_DIR/php.ini-development" "$PHP_IN_DIR/php.ini" && \
+RUN cp "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini" && \
     { \
         echo 'memory_limit=512M'; \
         echo 'error_reporting=E_ALL'; \

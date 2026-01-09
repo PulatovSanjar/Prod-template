@@ -1,23 +1,20 @@
-name: CI/CD (PROD)
+name: CI/CD (DEV)
 
 on:
   push:
-    branches: [ master ]
+    branches: [dev]
   workflow_dispatch:
 
 concurrency:
-  group: ci-prod
-  cancel-in-progress: false
+  group: ci-dev
+  cancel-in-progress: true
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_PREFIX: prod-template
+  IMAGE_PREFIX: magma-bank-service
   TAG: ${{ github.sha }}
 
 jobs:
-  # =========================
-  # 1️⃣ BUILD
-  # =========================
   build:
     runs-on: ubuntu-latest
     permissions:
@@ -48,21 +45,10 @@ jobs:
           file: docker/common/php-fpm/Dockerfile
           target: production
           push: true
-          tags: ghcr.io/${{ steps.meta.outputs.owner }}/${{ env.IMAGE_PREFIX }}-php-fpm:${{ env.TAG }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          tags: ghcr.io/${{ steps.meta.outputs.owner }}/${{ env.IMAGE_PREFIX }}-php-fpm:${{ env.TAG }}
 
-      - name: Build web (nginx)
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: docker/production/nginx/Dockerfile
-          push: true
-          tags: ghcr.io/${{ steps.meta.outputs.owner }}/${{ env.IMAGE_PREFIX }}-nginx:${{ env.TAG }}
-
-  # =========================
-  # 2️⃣ TEST
-  # =========================
   test:
     runs-on: ubuntu-latest
     needs: build
@@ -87,51 +73,50 @@ jobs:
         run: docker compose -f compose.dev.yaml up -d mysql redis
 
       - name: PHPUnit
-        run: docker compose -f compose.dev.yaml run --rm php-fpm ./vendor/bin/phpunit &
+        run: docker compose -f compose.dev.yaml run --rm php-fpm ./vendor/bin/phpunit
+
       - name: PHPStan
-        run: docker compose -f compose.dev.yaml run --rm php-fpm ./vendor/bin/phpstan analyse --memory-limit=-1 &
-      - run: wait
+        run: docker compose -f compose.dev.yaml run --rm php-fpm ./vendor/bin/phpstan analyse --memory-limit=-1
 
   # =========================
-  # 3️⃣ MIGRATE
+  # DISABLED: Server not connected yet
+  # Remove "if: false" after configuring SSH secrets
   # =========================
   migrate:
+    if: false
     runs-on: ubuntu-latest
     needs: test
-    environment: production
+    environment: development
 
     steps:
       - uses: webfactory/ssh-agent@v0.9.0
         with:
-          ssh-private-key: ${{ secrets.PROD_SSH_KEY }}
+          ssh-private-key: ${{ secrets.DEV_SSH_KEY }}
 
-      - name: Run migrations
+      - name: Migrate DB
         run: |
-          ssh ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }} "
-            cd ${{ secrets.PROD_DEPLOY_PATH }} &&
+          ssh ${{ secrets.DEV_SSH_USER }}@${{ secrets.DEV_SSH_HOST }} "
+            cd ${{ secrets.DEV_DEPLOY_PATH }} &&
             echo TAG=${{ env.TAG }} > .env.deploy &&
             docker login ghcr.io -u ${{ github.actor }} -p '${{ secrets.GITHUB_TOKEN }}' &&
             docker compose --env-file .env.deploy -f compose.prod.yaml pull &&
-            docker compose --env-file .env.deploy -f compose.prod.yaml up -d php-fpm &&
             docker compose --env-file .env.deploy -f compose.prod.yaml exec -T php-fpm php artisan migrate --force
           "
 
-  # =========================
-  # 4️⃣ DEPLOY
-  # =========================
   deploy:
+    if: false
     runs-on: ubuntu-latest
     needs: migrate
-    environment: production
+    environment: development
 
     steps:
       - uses: webfactory/ssh-agent@v0.9.0
         with:
-          ssh-private-key: ${{ secrets.PROD_SSH_KEY }}
+          ssh-private-key: ${{ secrets.DEV_SSH_KEY }}
 
       - name: Deploy
         run: |
-          ssh ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }} "
-            cd ${{ secrets.PROD_DEPLOY_PATH }} &&
+          ssh ${{ secrets.DEV_SSH_USER }}@${{ secrets.DEV_SSH_HOST }} "
+            cd ${{ secrets.DEV_DEPLOY_PATH }} &&
             docker compose --env-file .env.deploy -f compose.prod.yaml up -d --remove-orphans
           "
