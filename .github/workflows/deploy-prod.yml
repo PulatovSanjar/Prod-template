@@ -86,24 +86,14 @@ jobs:
       - name: Start DB
         run: docker compose -f compose.dev.yaml up -d mysql redis
 
-      - name: Prepare Laravel cache directories
-        run: |
-          docker compose -f compose.dev.yaml run --rm php-fpm \
-            sh -c "mkdir -p bootstrap/cache"
-
       - name: PHPUnit
         run: docker compose -f compose.dev.yaml run --rm php-fpm ./vendor/bin/phpunit
 
       - name: PHPStan
-        run: docker compose -f compose.dev.yaml run --rm php-fpm ./vendor/bin/phpstan analyse --memory-limit=-1
+        run: docker compose -f compose.dev.yaml run --rm php-fpm \
+          sh -c "mkdir -p bootstrap/cache && ./vendor/bin/phpstan analyse --memory-limit=-1"
 
-  # =========================
-  # 3️⃣ MIGRATE
-  # DISABLED: Server not connected yet
-  # Remove "if: false" after configuring SSH secrets
-  # =========================
   migrate:
-    if: false
     runs-on: ubuntu-latest
     needs: test
     environment: production
@@ -124,11 +114,6 @@ jobs:
             docker compose --env-file .env.deploy -f compose.prod.yaml exec -T php-fpm php artisan migrate --force
           "
 
-  # =========================
-  # 4️⃣ DEPLOY
-  # DISABLED: Server not connected yet
-  # Remove "if: false" after configuring SSH secrets
-  # =========================
   deploy:
     if: false
     runs-on: ubuntu-latest
